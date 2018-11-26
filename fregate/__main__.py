@@ -9,6 +9,7 @@
 # =============================================================================
 
 
+import socket
 import time
 import signal
 import sys
@@ -39,6 +40,7 @@ def parse_args():
     start_parser.add_argument("-d, --daemon", action="store_true",
                               default=False)
     subparsers.add_parser('clean')
+    subparsers.add_parser('ssh')
     return parser.parse_args()
 
 
@@ -52,6 +54,23 @@ def sigint_handler(signum, frame):
     logging.info("Delete {}".format(vm["network_name"]))
     machine.delete_hostnetwork(vm["network_name"])
     sys.exit(0)
+
+
+def ssh_connect(vm):
+    machine.ssh(vm)
+
+
+def ssh_is_responding(ip, port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(3)
+    try:
+        s.connect((ip, port))
+        s.close()
+    except (socket.timeout, socket.error):
+        logging.warning("Failed to connect to {}".format(ip))
+        return False
+    else:
+        return True
 
 
 def start():
@@ -69,6 +88,10 @@ def start():
         "VM_HOSTNAME": vm["hostname"],
         "VM_NETMASK": vm["netmask"]
     })
+
+    ssh_port = 22
+    while ssh_is_responding(vm["ip"], ssh_port) is False:
+        time.sleep(1)
     while True:
         machine.get_vmstate(vm["box_name"])
         logging.info("{} is running with address {}"
@@ -83,6 +106,7 @@ def clean():
     # Loop on vm if fregate is in name remove it
     for actual_vm in vms:
         if re.search('fregate', actual_vm["name"]) is not None:
+            machine.stop(actual_vm["uuid"])
             machine.delete(actual_vm["uuid"])
 
 
@@ -95,4 +119,6 @@ if __name__ == '__main__':
         start()
     elif args.action == "clean":
         clean()
+    elif args.action == "ssh":
+        ssh_connect(vm)
     sys.exit(0)

@@ -15,6 +15,11 @@ import subprocess
 from commons.utils import fatal
 
 
+def ssh(vm):
+    subprocess.call("ssh -i .fregate.d/id_rsa root@{}".format(vm["ip"]),
+                    shell=True)
+
+
 def get_vmstate(vm_name):
     """ @params vm_name Virtualbox VM name
     """
@@ -170,12 +175,12 @@ def delete(name):
         return status
 
 
-def start(name, env={}):
+def start(name, mode='headless', env={}):
     """ @params name <vm name|uuid>
         Start the vm
     """
     try:
-        command = ["vboxmanage", "startvm", name, "--type", "gui"]
+        command = ["vboxmanage", "startvm", name, "--type", mode]
         if len(env.keys()) is not 0:
             for key in env.keys():
                 logging.debug("ENV {}={}".format(key, env[key]))
