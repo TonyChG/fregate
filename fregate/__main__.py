@@ -55,6 +55,8 @@ def sigint_handler(signum, frame):
 
 
 def start():
+    """ Start default test infra
+    """
     # Host only network
     vm["network_name"] = machine.create_network(vm["network"], vm["netmask"])
     # List vms
@@ -74,6 +76,16 @@ def start():
         input("Ctrl+c to quit\n")
 
 
+def clean():
+    """ Remove all box with name fregate
+    """
+    vms = machine.list_vm()
+    # Loop on vm if fregate is in name remove it
+    for actual_vm in vms:
+        if re.search('fregate', actual_vm["name"]) is not None:
+            machine.delete(actual_vm["uuid"])
+
+
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, sigint_handler)
     logging.basicConfig(level=logging.DEBUG)
@@ -82,9 +94,5 @@ if __name__ == '__main__':
     if args.action == "start":
         start()
     elif args.action == "clean":
-        vms = machine.list_vm()
-        # Loop on vm if fregate is in name remove it
-        for actual_vm in vms:
-            if re.search('fregate', actual_vm["name"]) is not None:
-                machine.delete(actual_vm["uuid"])
+        clean()
     sys.exit(0)
