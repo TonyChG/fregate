@@ -23,6 +23,8 @@ setup(
     author_email='antoine.chiny@inria.fr',
     url='https://gitlab.dotfile.eu/tonychg/fregate',
     packages=[
+        "fregate.commands",
+        "fregate.services",
     ],
     install_requires=[
     ],
