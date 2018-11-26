@@ -57,6 +57,7 @@ def create_network(ip, netmask):
 
 def import_box(box_url):
     """ @params box_url box .ova url
+        Import a .ova from url
     """
     try:
         new_vm = subprocess.check_output([
@@ -78,6 +79,7 @@ def import_box(box_url):
 
 def create(name):
     """ @params name <vm name|uuid>
+        Create a new vm
     """
     try:
         new_vm = subprocess.check_output([
@@ -98,6 +100,7 @@ def create(name):
 
 def list_vm():
     """ @return vm list (uuid, name)
+        List all virtualbox vm
     """
     try:
         vms = subprocess.check_output(["vboxmanage", "list", "vms"])
@@ -118,6 +121,7 @@ def list_vm():
 
 def delete(name):
     """ @params name <vm name|uuid>
+        Delete the vm
     """
     try:
         status = subprocess.call([
@@ -131,6 +135,9 @@ def delete(name):
 
 
 def start(name):
+    """ @params name <vm name|uuid>
+        Start the vm
+    """
     try:
         subprocess.call([
             "vboxmanage", "startvm", name, "--type", "gui"
@@ -143,6 +150,9 @@ def start(name):
 
 
 def stop(name):
+    """ @params name <vm name|uuid>
+        Stop the vm
+    """
     try:
         subprocess.call([
             "vboxmanage", "controlvm", name, "poweroff"

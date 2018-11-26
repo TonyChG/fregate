@@ -30,4 +30,4 @@ if __name__ == '__main__':
     # Update host only network
     machine.update_hostnetwork(vm_name, net_name)
     machine.start(vm_name)
-    machine.stop(vm_name)
+    # machine.stop(vm_name)
