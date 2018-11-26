@@ -25,6 +25,7 @@ setup(
     packages=[
         "fregate.commands",
         "fregate.services",
+        "fregate.commons",
     ],
     install_requires=[
     ],
