@@ -15,6 +15,42 @@ import subprocess
 from commons.utils import fatal
 
 
+def get_vmstate(vm_name):
+    """ @params vm_name Virtualbox VM name
+    """
+    try:
+        vm_info = subprocess.check_output([
+            "vboxmanage", "showvminfo", vm_name, "--machinereadable"
+        ])
+    except Exception as e:
+        fatal("Failed to retrieve infos of {}".format(vm_name), exception=e)
+    else:
+        infos = {}
+        for info in vm_info.decode('utf-8').split('\n'):
+            if info is not None:
+                splited_line = info.split('=')
+                if len(splited_line) == 2 \
+                        and splited_line[0] != '' \
+                        and splited_line[1] != '':
+                    value = re.sub('"', '', splited_line[1])
+                    infos[splited_line[0]] = value
+        return infos
+
+
+def delete_hostnetwork(net_name):
+    """ @params net_name Virtualbox HostOnlyNetwork name
+    """
+    try:
+        subprocess.check_output([
+            "vboxmanage", "hostonlyif", "remove", net_name
+        ])
+    except Exception as e:
+        fatal("Failed to delete new host only network", exception=e)
+    else:
+        logging.debug("Network {} is deleted".format(net_name))
+        return 0
+
+
 def update_hostnetwork(vm_name, net_name):
     """ @params vm_name Machine name or uuid
         @params net_name Hostonly network name
@@ -134,14 +170,18 @@ def delete(name):
         return status
 
 
-def start(name):
+def start(name, env={}):
     """ @params name <vm name|uuid>
         Start the vm
     """
     try:
-        subprocess.call([
-            "vboxmanage", "startvm", name, "--type", "gui"
-        ])
+        command = ["vboxmanage", "startvm", name, "--type", "gui"]
+        if len(env.keys()) is not 0:
+            for key in env.keys():
+                logging.debug("ENV {}={}".format(key, env[key]))
+                command.append("-E")
+                command.append('{}="{}"'.format(key, env[key]))
+        subprocess.call(command)
     except Exception as e:
         fatal("Failed to start {}".format(name), exception=e)
     else:
