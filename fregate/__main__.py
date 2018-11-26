@@ -11,3 +11,10 @@
 # 11/26/18    tonychg
 # =============================================================================
 
+
+import logging
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    logging.info("Fregate {}".format('1.0'))
