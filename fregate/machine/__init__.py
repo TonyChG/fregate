@@ -10,6 +10,7 @@
 
 
 import re
+import logging
 import subprocess
 from commons.utils import fatal
 
@@ -20,16 +21,16 @@ def update_hostnetwork(vm_name, net_name):
     """
     try:
         subprocess.call([
-            "vboxmanage", "modifyvm", vm_name,
-            "--hostonlyadapter1", net_name
+            "vboxmanage", "modifyvm", vm_name, "--hostonlyadapter1", net_name
         ])
         subprocess.call([
-            "vboxmanage", "modifyvm", vm_name,
-            "--nic1", "hostonly"
+            "vboxmanage", "modifyvm", vm_name, "--nic1", "hostonly"
         ])
     except Exception as e:
         fatal("Failed to attach host only network", exception=e)
     else:
+        logging.debug("Sucessfully attached {} to {}"
+                      .format(net_name, vm_name))
         return 0
 
 
@@ -45,13 +46,12 @@ def create_network(ip, netmask):
         if net_name is not None:
             net_name = re.sub("'", '', net_name.group(0))
             subprocess.check_output([
-                "vboxmanage", "hostonlyif",
-                "ipconfig", net_name,
-                "--ip", ip
+                "vboxmanage", "hostonlyif", "ipconfig", net_name, "--ip", ip
             ])
     except Exception as e:
         fatal("Failed to create new host only network", exception=e)
     else:
+        logging.debug("Network {} is created".format(net_name))
         return net_name
 
 
@@ -71,6 +71,7 @@ def import_box(box_url):
                 vm_name = re.search('".+"', l)
                 if re.search("VM name", l) and vm_name is not None:
                     vm_name = re.sub('"', '', vm_name.group(0))
+                    logging.debug("VM {} is imported".format(vm_name))
                     return vm_name
         return vm_name
 
@@ -80,10 +81,8 @@ def create(name):
     """
     try:
         new_vm = subprocess.check_output([
-            "vboxmanage", "createvm",
-            "--name", name,
-            "--ostype", "Linux26_64",
-            "--register"
+            "vboxmanage", "createvm", "--name", name,
+            "--ostype", "Linux26_64", "--register"
         ])
     except Exception as e:
         fatal("Impossible to create the new node", exception=e)
@@ -93,6 +92,7 @@ def create(name):
             vm_path = re.search("'/.+'", l)
             if vm_path is not None:
                 print(vm_path.group(0))
+        logging.debug("VM {} is created".format(name))
         return vm_path
 
 
@@ -121,12 +121,12 @@ def delete(name):
     """
     try:
         status = subprocess.call([
-            "vboxmanage", "unregistervm",
-            name, "--delete"
+            "vboxmanage", "unregistervm", name, "--delete"
         ])
     except Exception as e:
         fatal("Failed to delete {}".format(name), exception=e)
     else:
+        logging.debug("VM {} is removed".format(name))
         return status
 
 
@@ -138,8 +138,17 @@ def start(name):
     except Exception as e:
         fatal("Failed to start {}".format(name), exception=e)
     else:
+        logging.debug("VM {} is starting".format(name))
         return True
 
 
 def stop(name):
-    pass
+    try:
+        subprocess.call([
+            "vboxmanage", "controlvm", name, "poweroff"
+        ])
+    except Exception as e:
+        fatal("Failed to stop {}".format(name), exception=e)
+    else:
+        logging.debug("Stop VM {}".format(name))
+        return True
