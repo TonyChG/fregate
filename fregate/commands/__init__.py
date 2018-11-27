@@ -32,6 +32,7 @@ def parse_args():
     subparsers.add_parser('clean')
     subparsers.add_parser('ssh')
     subparsers.add_parser('status')
+    subparsers.add_parser('down')
     return parser.parse_args()
 
 
@@ -46,6 +47,8 @@ def sigint_handler(signum, frame):
         network = vm.box_network
     logging.info("Delete {}".format(vm.box_network.name))
     network.delete()
+    for vm in vms:
+        vm.delete()
     sys.exit(0)
 
 
@@ -80,7 +83,10 @@ def up(vm, network, wait_port=22):
         "VM_HOSTNAME": vm.hostname,
         "VM_NETMASK": vm.netmask
     })
-    while ssh_is_responding(vm.ip, wait_port) is False:
+    host_ip = "127.0.0.1"
+    host_port = 2222
+    vm.forward_ssh(host_ip=host_ip, host_port=2222)
+    while ssh_is_responding(host_ip, host_port) is False:
         time.sleep(1)
     while True:
         vm.getinfo()
@@ -97,6 +103,15 @@ def clean():
     for vm in vms:
         if re.search('^fregate', vm['name']):
             VBox.destroy(vm['uuid'])
+
+
+def down():
+    """ Stop all box
+    """
+    vms = VBox.list()
+    for vm in vms:
+        if re.search('^fregate', vm['name']):
+            VBox.force_stop(vm['uuid'])
 
 
 def status():

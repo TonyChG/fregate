@@ -25,7 +25,7 @@ vm_infos = {
 }
 
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(level=logging.DEBUG)
     logging.info("Fregate {}".format('1.0'))
     args = commands.parse_args()
@@ -41,4 +41,15 @@ if __name__ == '__main__':
         commands.ssh(vm, identity_file=".fregate.d/id_rsa", user="root")
     elif args.action == "status":
         commands.status()
-    sys.exit(0)
+    elif args.action == "down":
+        commands.down()
+    return 0
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Cancel")
+        commands.clean()
+        sys.exit(1)

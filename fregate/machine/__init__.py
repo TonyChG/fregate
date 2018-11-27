@@ -37,6 +37,20 @@ class VBox:
         return vms_list
 
     @staticmethod
+    def force_stop(vm_uuid):
+        """ @params name <vm name|uuid>
+            Forcing shutdown of the vm
+        """
+        code = execute([
+            "vboxmanage", "controlvm", vm_uuid, "poweroff"
+        ], stdout=False)
+        if code is not 0:
+            fatal("Failed to stop {}".format(vm_uuid))
+        else:
+            logging.debug("Stop VM {}".format(vm_uuid))
+        return 0
+
+    @staticmethod
     def destroy(id):
         """ @params name <vm name|uuid>
             Delete the vm
@@ -48,21 +62,43 @@ class VBox:
             logging.debug("VM {} is removed".format(id))
         return 0
 
-    def __init__(self, box_url=None, ip=None, network=None, netmask=None,
-                 hostname=None):
+    def __init__(self, id=None, box_url=None, ip=None, network=None,
+                 netmask=None, hostname=None):
         self.box_url = box_url
         self.hostname = hostname
+        self.id = id
         self.ip = ip
         self.network = network
         self.netmask = netmask
         self.infos = {}
         self.name = None
         self.box_network = None
+        self.ssh_enabled = False
+
+    def forward_ssh(self, host_ip="127.0.0.1", host_port=2222, guest_port=22):
+        code = execute(["vboxmanage", "controlvm", self.name,
+                        "natpf2", "guestssh,tcp,{},{},,{}"
+                        .format(host_ip, host_port, guest_port)])
+        if code is not 0:
+            fatal("Failed to enable ssh forwarding")
+        else:
+            logging.info("Enable forwarding")
+            logging.info("{}:{} > {}:{}"
+                         .format(host_ip, host_port, self.name, guest_port))
+            self.ssh_enabled = True
+            return 0
 
     def ssh(self, identity_file=None, user=None):
-        subprocess.call("ssh -q -o 'StrictHostKeyChecking=no' -i {} {}@{}"
-                        .format(identity_file, user, self.ip),
-                        shell=True)
+        if self.ssh_enabled:
+            logging.debug("Connect to ssh with forwarding")
+            ssh_ip = "127.0.0.1"
+            ssh_port = 2222
+        else:
+            ssh_ip = self.ip
+            ssh_port = 22
+        ssh_command = "ssh -p {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
+            .format(ssh_port, identity_file, user, ssh_ip)
+        subprocess.call(ssh_command, shell=True)
 
     def getinfo(self):
         """ @params vm_name Virtualbox VM name
