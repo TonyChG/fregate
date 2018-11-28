@@ -5,3 +5,6 @@ vendor
 *.pyc
 __pycache__
 venv/
+k8s/bin
+*.ova
+
