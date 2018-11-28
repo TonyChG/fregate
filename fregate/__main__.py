@@ -10,6 +10,7 @@
 
 
 import sys
+import config
 import logging
 import commands
 from provider.vbox import VBox
@@ -28,6 +29,8 @@ vm_infos = {
 def main():
     logging.basicConfig(level=logging.DEBUG)
     logging.info("Fregate {}".format('1.0'))
+    cfg = config.read()
+    vm_infos["config"] = cfg
     args = commands.parse_args()
     vm = VBox(**vm_infos)
     if args.action == "up":
@@ -38,7 +41,7 @@ def main():
     elif args.action == "clean":
         commands.clean()
     elif args.action == "ssh":
-        commands.ssh(vm, identity_file=".fregate.d/id_rsa", user="root")
+        commands.ssh(vm)
     elif args.action == "status":
         commands.status()
     elif args.action == "down":

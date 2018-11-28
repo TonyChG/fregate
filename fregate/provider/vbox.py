@@ -64,7 +64,7 @@ class VBox:
         return 0
 
     def __init__(self, id=None, box_url=None, ip=None, network=None,
-                 netmask=None, hostname=None):
+                 netmask=None, hostname=None, config={}):
         self.box_url = box_url
         self.hostname = hostname
         self.id = id
@@ -74,7 +74,33 @@ class VBox:
         self.infos = {}
         self.name = None
         self.box_network = None
-        self.ssh_enabled = False
+        self.forwarding_enabled = False
+        self.ssh_privkey = config["ssh"]["privkey"]
+        self.ssh_user = config["ssh"]["user"]
+        self.ssh_port = config["ssh"]["port"]
+
+    def get_sshcmd(self, forwarding=False, scp=False, target=None, dest=None):
+        ssh_command = "scp" if scp else "ssh"
+        ssh_port = "-P" if scp else "-p"
+
+        if forwarding:
+            logging.debug("Connect to ssh with forwarding")
+            ssh_ip = "127.0.0.1"
+            ssh_port += " {}".format(2222)
+        else:
+            ssh_ip = self.ip
+            ssh_port += " {}".format(self.ssh_port)
+        if scp and target is not None and dest is not None:
+            ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {} {}"\
+                .format(ssh_command, ssh_port, self.ssh_privkey, target, dest)
+        elif scp is False:
+            ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
+                .format(ssh_command, ssh_port, self.ssh_privkey, self.ssh_user,
+                        ssh_ip)
+        else:
+            fatal("When using get_sshcmd in scp mode you have"
+                  " to specify target and destination")
+        return ssh_command
 
     def forward_ssh(self, host_ip="127.0.0.1", host_port=2222, guest_port=22):
         code = execute(["vboxmanage", "controlvm", self.name,
@@ -86,8 +112,24 @@ class VBox:
             logging.info("Enable forwarding")
             logging.info("{}:{} > {}:{}"
                          .format(host_ip, host_port, self.name, guest_port))
-            self.ssh_enabled = True
+            self.forwarding_enabled = True
             return 0
+
+    def copy_firstboot(self, script_path):
+        dest = "{}@{}:{}".format(self.ssh_user, '127.0.0.1', script_path)
+        scp_command = self.get_sshcmd(
+            forwarding=self.forwarding_enabled,
+            scp=True,
+            target=script_path,
+            dest=dest
+        )
+        code = execute(scp_command, wait=True, shell=True)
+        if code is not 0:
+            logging.warning("Failed to copy firstboot script {}"
+                            .format(script_path))
+        else:
+            logging.debug("Success copy {}".format(script_path))
+        return code
 
     def launch_firstboot(self, script="scripts/firstboot.sh.tpl", **kwargs):
         try:
@@ -104,35 +146,25 @@ class VBox:
         except Exception as e:
             fatal("Failed to open {}".format(script), exception=e)
         else:
-            logging.info("Launch firstboot on {}".format(self.hostname))
-            ssh_params = "-o 'StrictHostKeyChecking=no'"
-            ssh_params += " -q -i {}".format(".fregate.d/id_rsa", 2222)
             firstboot_path = '/tmp/{}.firstboot.sh'.format(self.hostname)
+            logging.info("Launch firstboot on {}".format(self.hostname))
             with open(firstboot_path, 'w+') as f:
                 f.write(firstboot_script)
-            scp_command = "scp {} -P {} {} {}@{}:/tmp"\
-                .format(ssh_params, 2222, firstboot_path, 'root', '127.0.0.1')
-            code = execute(scp_command, wait=True, shell=True)
-            if code is not 0:
-                logging.warning("Failed to copy firstboot script {}"
-                                .format(firstboot_path))
-            ssh_command = "ssh {} -p {} {}@{} sh '{}'"\
-                .format(ssh_params, 2222, 'root', '127.0.0.1', firstboot_path)
+            success_copy = self.copy_firstboot(firstboot_path)
+            if success_copy:
+                return -1
+            ssh_command = self.get_sshcmd(forwarding=self.forwarding_enabled)
+            ssh_command += " sh {}".format(firstboot_path)
             code = execute(ssh_command, wait=True, shell=True)
             if code is not 0:
                 logging.warning("Failed to execute firstboot script {}"
                                 .format(firstboot_script))
+                return -1
+            logging.info("firstboot.sh successfully executed")
+            return 0
 
     def ssh(self, identity_file=None, user=None):
-        if self.ssh_enabled:
-            logging.debug("Connect to ssh with forwarding")
-            ssh_ip = "127.0.0.1"
-            ssh_port = 2222
-        else:
-            ssh_ip = self.ip
-            ssh_port = 22
-        ssh_command = "ssh -p {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
-            .format(ssh_port, identity_file, user, ssh_ip)
+        ssh_command = self.get_sshcmd(forwarding=self.forwarding_enabled)
         subprocess.call(ssh_command, shell=True)
 
     def getinfo(self):

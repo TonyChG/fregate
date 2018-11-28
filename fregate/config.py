@@ -9,5 +9,15 @@
 # =============================================================================
 
 
-def read():
-    pass
+import yaml
+from commons.utils import fatal
+
+
+def read(configpath='fregate.yml'):
+    try:
+        with open(configpath, 'r') as f:
+            cfg = yaml.load(f.read())
+    except Exception:
+        fatal("Failed to open {}".format(configpath))
+    else:
+        return cfg

@@ -1,0 +1,4 @@
+ssh:
+  privkey: .fregate.d/id_rsa
+  user: root
+  port: 22
