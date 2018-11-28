@@ -78,13 +78,14 @@ class VBox:
         self.ssh_privkey = config["ssh"]["privkey"]
         self.ssh_user = config["ssh"]["user"]
         self.ssh_port = config["ssh"]["port"]
+        self.logger = logging.getLogger(name=self.hostname)
 
     def get_sshcmd(self, forwarding=False, scp=False, target=None, dest=None):
         ssh_command = "scp" if scp else "ssh"
         ssh_port = "-P" if scp else "-p"
 
         if forwarding:
-            logging.debug("Connect to ssh with forwarding")
+            self.logger.debug("Connect to ssh with forwarding")
             ssh_ip = "127.0.0.1"
             ssh_port += " {}".format(2222)
         else:
@@ -109,9 +110,10 @@ class VBox:
         if code is not 0:
             fatal("Failed to enable ssh forwarding")
         else:
-            logging.info("Enable forwarding")
-            logging.info("{}:{} > {}:{}"
-                         .format(host_ip, host_port, self.name, guest_port))
+            self.logger.info("Enable forwarding")
+            self.logger.info("{}:{} > {}:{}"
+                             .format(host_ip, host_port,
+                                     self.name, guest_port))
             self.forwarding_enabled = True
             return 0
 
@@ -125,10 +127,10 @@ class VBox:
         )
         code = execute(scp_command, wait=True, shell=True)
         if code is not 0:
-            logging.warning("Failed to copy firstboot script {}"
-                            .format(script_path))
+            self.logger.warning("Failed to copy firstboot script {}"
+                                .format(script_path))
         else:
-            logging.debug("Success copy {}".format(script_path))
+            self.logger.debug("Success copy {}".format(script_path))
         return code
 
     def launch_firstboot(self, script="scripts/firstboot.sh.tpl", **kwargs):
@@ -142,12 +144,12 @@ class VBox:
                     VM_HOSTNAME=self.hostname
                 )
                 f.close()
-            logging.info("Success read template {}".format(script))
+            self.logger.info("Success read template {}".format(script))
         except Exception as e:
             fatal("Failed to open {}".format(script), exception=e)
         else:
             firstboot_path = '/tmp/{}.firstboot.sh'.format(self.hostname)
-            logging.info("Launch firstboot on {}".format(self.hostname))
+            self.logger.info("Launch firstboot on {}".format(self.hostname))
             with open(firstboot_path, 'w+') as f:
                 f.write(firstboot_script)
             success_copy = self.copy_firstboot(firstboot_path)
@@ -157,10 +159,10 @@ class VBox:
             ssh_command += " sh {}".format(firstboot_path)
             code = execute(ssh_command, wait=True, shell=True)
             if code is not 0:
-                logging.warning("Failed to execute firstboot script {}"
-                                .format(firstboot_script))
+                self.logger.warning("Failed to execute firstboot script {}"
+                                    .format(firstboot_script))
                 return -1
-            logging.info("firstboot.sh successfully executed")
+            self.logger.info("firstboot.sh successfully executed")
             return 0
 
     def ssh(self, identity_file=None, user=None):
@@ -200,7 +202,8 @@ class VBox:
                     vm_name = re.search('".+"', line)
                     if re.search("VM name", line) and vm_name is not None:
                         self.name = re.sub('"', '', vm_name.group(0))
-                        logging.debug("VM {} is imported".format(self.name))
+                        self.logger.debug("VM {} is imported"
+                                          .format(self.name))
                         return 0
         return -1
 
@@ -219,7 +222,7 @@ class VBox:
                 vm_path = re.search("'/.+'", line)
                 if vm_path is not None:
                     print(vm_path.group(0))
-            logging.debug("VM {} is created".format(self.name))
+            self.logger.debug("VM {} is created".format(self.name))
             return vm_path
 
     def delete(self):
@@ -230,7 +233,7 @@ class VBox:
         if code is not 0:
             fatal("Failed to delete {}".format(self.name))
         else:
-            logging.debug("VM {} is removed".format(self.name))
+            self.logger.debug("VM {} is removed".format(self.name))
         return 0
 
     def start(self, mode='headless', env={}):
@@ -240,14 +243,14 @@ class VBox:
         command = ["vboxmanage", "startvm", self.name, "--type", mode]
         if len(env.keys()) is not 0:
             for key in env.keys():
-                logging.debug("ENV {}={}".format(key, env[key]))
+                self.logger.debug("ENV {}={}".format(key, env[key]))
                 command.append("-E")
                 command.append('{}="{}"'.format(key, env[key]))
         code = execute(command)
         if code is not 0:
             fatal("Failed to start {}".format(self.name))
         else:
-            logging.debug("VM {} is starting".format(self.name))
+            self.logger.debug("VM {} is starting".format(self.name))
         return 0
 
     def stop(self):
@@ -260,5 +263,5 @@ class VBox:
         if code is not 0:
             fatal("Failed to stop {}".format(self.name))
         else:
-            logging.debug("Stop VM {}".format(self.name))
+            self.logger.debug("Stop VM {}".format(self.name))
         return 0

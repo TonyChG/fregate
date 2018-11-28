@@ -9,6 +9,7 @@
 # =============================================================================
 
 
+# import datetime
 import sys
 import config
 import logging
@@ -27,7 +28,9 @@ vm_infos = {
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logformat = '[%(levelname)-8s%(relativeCreated)8d]'\
+        ' [%(name)s] %(message)15s'
+    logging.basicConfig(level=logging.DEBUG, format=logformat)
     logging.info("Fregate {}".format('1.0'))
     cfg = config.read()
     vm_infos["config"] = cfg
