@@ -9,7 +9,8 @@
 # =============================================================================
 
 
-from machine import VBox
+from provider.vbox import VBox
+from commons.shell import execute
 from argparse import ArgumentParser
 import logging
 import socket
@@ -56,7 +57,7 @@ def ssh(vm, identity_file=None, user=None):
     vm.ssh(identity_file=identity_file, user=user)
 
 
-def ssh_is_responding(ip, port):
+def ssh_attempt(ip, port=22, privkey=".fregate.d/id_rsa", user="root"):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(3)
     try:
@@ -66,7 +67,25 @@ def ssh_is_responding(ip, port):
         logging.warning("Failed to connect to {}".format(ip))
         return False
     else:
-        return True
+        ssh_command = "ssh -q -i '{}' -o 'StrictHostKeyChecking=no'"\
+            " -p {} {}@{} id -u".format(privkey, port, user, ip)
+        code, output = execute(ssh_command, wait=True, stdout=True, shell=True)
+        if code is 0 and int(output[0]) is 0:
+            return True
+        return False
+
+
+def waiting_ssh(ip, port=22, user="root", privkey=".fregate.d/id_rsa"):
+    trials = 0
+    ssh_available = False
+    while not ssh_available:
+        if trials % 2 is 0:
+            logging.info("Waiting up of SSH")
+            ssh_available = ssh_attempt(ip, port=port,
+                                        user=user, privkey=privkey)
+        trials += 1
+        if ssh_available is False:
+            time.sleep(1)
 
 
 def up(vm, network, wait_port=22):
@@ -78,16 +97,16 @@ def up(vm, network, wait_port=22):
     vm.import_box()
     # Update host only network
     network.attach(vm)
-    vm.start(env={
-        "VM_IP": vm.ip,
-        "VM_HOSTNAME": vm.hostname,
-        "VM_NETMASK": vm.netmask
-    })
+    # Start the vm
+    vm.start()
+    # Host ssh config
     host_ip = "127.0.0.1"
     host_port = 2222
+    # Enable forwarding
     vm.forward_ssh(host_ip=host_ip, host_port=2222)
-    while ssh_is_responding(host_ip, host_port) is False:
-        time.sleep(1)
+    # Wait for ssh to respond
+    waiting_ssh(host_ip, port=host_port, privkey=".fregate.d/id_rsa")
+    vm.launch_firstboot()
     while True:
         vm.getinfo()
         logging.info("{} is running with address {}".format(vm.name, vm.ip))

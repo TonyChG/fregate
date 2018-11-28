@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 # =============================================================================
-# Name     : create.py
+# Name     : vbox.py
 # Function :
 # Usage    :
 # Version  : 1.0.0
@@ -12,6 +12,7 @@
 import re
 import logging
 import subprocess
+from jinja2 import Template
 from commons.utils import fatal
 from commons.shell import execute
 
@@ -87,6 +88,40 @@ class VBox:
                          .format(host_ip, host_port, self.name, guest_port))
             self.ssh_enabled = True
             return 0
+
+    def launch_firstboot(self, script="scripts/firstboot.sh.tpl", **kwargs):
+        try:
+            with open(script) as f:
+                t = Template(f.read())
+                firstboot_script = t.render(
+                    VM_IP=self.ip,
+                    VM_NETMASK=self.netmask,
+                    VM_NETWORK=self.network,
+                    VM_HOSTNAME=self.hostname
+                )
+                f.close()
+            logging.info("Success read template {}".format(script))
+        except Exception as e:
+            fatal("Failed to open {}".format(script), exception=e)
+        else:
+            logging.info("Launch firstboot on {}".format(self.hostname))
+            ssh_params = "-o 'StrictHostKeyChecking=no'"
+            ssh_params += " -q -i {}".format(".fregate.d/id_rsa", 2222)
+            firstboot_path = '/tmp/{}.firstboot.sh'.format(self.hostname)
+            with open(firstboot_path, 'w+') as f:
+                f.write(firstboot_script)
+            scp_command = "scp {} -P {} {} {}@{}:/tmp"\
+                .format(ssh_params, 2222, firstboot_path, 'root', '127.0.0.1')
+            code = execute(scp_command, wait=True, shell=True)
+            if code is not 0:
+                logging.warning("Failed to copy firstboot script {}"
+                                .format(firstboot_path))
+            ssh_command = "ssh {} -p {} {}@{} sh '{}'"\
+                .format(ssh_params, 2222, 'root', '127.0.0.1', firstboot_path)
+            code = execute(ssh_command, wait=True, shell=True)
+            if code is not 0:
+                logging.warning("Failed to execute firstboot script {}"
+                                .format(firstboot_script))
 
     def ssh(self, identity_file=None, user=None):
         if self.ssh_enabled:

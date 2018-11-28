@@ -14,12 +14,14 @@ import subprocess
 import logging
 
 
-def execute(commandline, stdout=False):
+def execute(commandline, stdout=False, wait=False, shell=False, debug=False):
     returncode = -1
+    output = ""
     try:
         with subprocess.Popen(commandline,
                               stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE) as proc:
+                              stderr=subprocess.PIPE,
+                              shell=shell) as proc:
             returncode = proc.wait()
             if returncode is not 0:
                 raise Exception("{} failed".format(commandline))
@@ -27,10 +29,12 @@ def execute(commandline, stdout=False):
             if len(output) > 0:
                 output = output.decode('utf-8')[:-1]
                 output = output.split('\n')
+            if wait:
+                proc.wait()
     except Exception as e:
-        logging.debug(e)
-        return -1
-    else:
+        if debug:
+            logging.debug(e)
+    finally:
         if stdout is False:
             return returncode
         return returncode, output

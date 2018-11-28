@@ -1,12 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env python3
+# coding: utf-8
 # =============================================================================
-# Name     : tools.sh
+# Name     : __init__.py
 # Function :
 # Usage    :
 # Version  : 1.0.0
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
-
-
-set -ex
-apk add --no-cache -q rsync
