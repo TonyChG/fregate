@@ -10,27 +10,24 @@
 
 
 import sys
-import config
 import logging
 import commands
-from provider.vbox import VBox
-from provider.network import HostNetwork
+from machine import VBox
+from machine.network import HostNetwork
 
 
 vm_infos = {
-    "ip": "172.16.16.100",
+    "ip": "172.16.16.10",
     "network": "172.16.16.1",
     "netmask": "255.255.255.0",
-    "hostname": "fregate-001",
-    "box_url": "/home/tonychg/Documents/fregate-base.ova",
+    "hostname": "fregate",
+    "box_url": "./fregate-base.ova"
 }
 
 
-def main():
+if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.info("Fregate {}".format('1.0'))
-    cfg = config.read()
-    vm_infos["config"] = cfg
     args = commands.parse_args()
     vm = VBox(**vm_infos)
     if args.action == "up":
@@ -41,18 +38,7 @@ def main():
     elif args.action == "clean":
         commands.clean()
     elif args.action == "ssh":
-        commands.ssh(vm)
+        commands.ssh(vm, identity_file=".fregate.d/id_rsa", user="root")
     elif args.action == "status":
         commands.status()
-    elif args.action == "down":
-        commands.down()
-    return 0
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Cancel")
-        commands.clean()
-        sys.exit(1)
+    sys.exit(0)
