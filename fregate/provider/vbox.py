@@ -81,6 +81,17 @@ class VBox:
         self.logger = logging.getLogger(name=self.hostname)
 
     def get_sshcmd(self, forwarding=False, scp=False, target=None, dest=None):
+        """ The getter for the ssh shell command line with all required params
+            @fowarding       Get the ssh cmd when the forwarding mode
+                             of this module is enabled
+            @scp             Get and scp command instead of ssh
+                             When scp mode is enabled you
+                             need to specify target and destination
+            @target          The file on you host to transfer
+                             or a directory/file from the guest
+            @dest            Remote dest on the guest or a
+                             directory/file on your host
+        """
         ssh_command = "scp" if scp else "ssh"
         ssh_port = "-P" if scp else "-p"
 
@@ -104,6 +115,9 @@ class VBox:
         return ssh_command
 
     def forward_ssh(self, host_ip="127.0.0.1", host_port=2222, guest_port=22):
+        """ Enable ssh forwarding between vm to host
+            The ssh port of the guest will be forward to the specify host port
+        """
         code = execute(["vboxmanage", "controlvm", self.name,
                         "natpf2", "guestssh,tcp,{},{},,{}"
                         .format(host_ip, host_port, guest_port)])
@@ -134,6 +148,15 @@ class VBox:
         return code
 
     def launch_firstboot(self, script="scripts/firstboot.sh.tpl", **kwargs):
+        """ Template a firstboot script to update network configs and install
+            dependencies.
+            Copy firstboot template to vm and execute the script
+            **kwargs will be replace in jinja2 template rendering as follow
+            **kwargs=(VM_IP="192.168.5.1")
+            firstboot template file
+            => "{{ VM_IP }}" => 192.168.5.1
+            @return 0 on success execute
+        """
         try:
             with open(script) as f:
                 t = Template(f.read())
