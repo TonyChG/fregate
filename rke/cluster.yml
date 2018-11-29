@@ -1,11 +1,11 @@
 nodes:
-    - address: 172.16.16.10
+    - address: 172.16.16.100
       user: root
       role:
         - controlplane
         - etcd
         - worker
-      ssh_key_path: /home/dauliac/Workspace/fregate/.fregate.d/id_rsa
+      ssh_key_path: ../.fregate.d/id_rsa
       port: 22
 
 ignore_docker_version: false

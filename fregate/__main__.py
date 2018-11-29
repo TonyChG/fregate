@@ -23,7 +23,7 @@ vm_infos = {
     "network": "172.16.16.1",
     "netmask": "255.255.255.0",
     "hostname": "fregate-001",
-    "box_url": "/home/tonychg/Documents/fregate-base.ova",
+    "box_url": "boxes/fregate-base.ova",
 }
 
 

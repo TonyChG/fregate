@@ -19,6 +19,9 @@ setup(
     name='fregate',
     version='1.0',
     description='Multi nodes - Kubernetes Cluster CLI',
+    scripts=[
+        "fregate"
+    ],
     author='Antoine CHINY',
     author_email='antoine.chiny@inria.fr',
     url='https://gitlab.dotfile.eu/tonychg/fregate',
