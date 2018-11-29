@@ -1,10 +1,12 @@
-#!/usr/bin/env python3
 # coding: utf-8
 # =============================================================================
 # Name     : network.py
-# Function :
-# Usage    :
-# Version  : 1.0.0
+# Function : VirtualBox CLI Wrapper
+#            Basic network configuration
+#            HostNetwork (Host only network)
+#            Create a virtualbox host only network
+#            Attach a virtualmachine to a network
+#            Delete
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 

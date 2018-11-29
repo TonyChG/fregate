@@ -105,13 +105,13 @@ def up(vm, network, wait_port=22):
     # Enable forwarding
     vm.forward_ssh(host_ip=host_ip, host_port=2222)
     # Wait for ssh to respond
-    waiting_ssh(host_ip, port=host_port, privkey=".fregate.d/id_rsa")
+    waiting_ssh(host_ip, port=host_port, privkey=vm.ssh_privkey)
     vm.launch_firstboot()
     while True:
         vm.getinfo()
         logging.info("{} is running with address {}".format(vm.name, vm.ip))
         vms.append(vm)
-        input("Ctrl+c to quit\n")
+        input("Ctrl+c to remove the infra\n")
     print()
 
 

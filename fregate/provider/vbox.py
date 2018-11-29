@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
 # coding: utf-8
 # =============================================================================
 # Name     : vbox.py
-# Function :
-# Usage    :
+# Function : VirtualBox CLI Wrapper
+#            Basic functionnalty like up/down/destroy/ssh
 # Version  : 1.0.0
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
