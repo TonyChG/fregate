@@ -8,7 +8,6 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-
 # import datetime
 import sys
 import logging
@@ -16,7 +15,6 @@ import atexit
 import lib.fregate.config as config
 import lib.fregate.commands as commands
 import yaml
-
 
 @atexit.register
 def onexit():

@@ -240,8 +240,7 @@ class VBox:
             self.logger.info("Download finished")
 
     def rename(self, target, new_name):
-        print(["vboxmanage", "modifyvm", target, "--name", new_name])
-        code, output = execute(["vboxmanage", "modifyvm", target, "--name", new_name], stdout=True, shell=True)
+        code = execute(["vboxmanage", "modifyvm", target, "--name", new_name])
         if code is not 0:
             self.logger.warning("Failed to rename box {}".format(target))
         else:
