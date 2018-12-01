@@ -1,0 +1,12 @@
+nodes:
+    - address: 172.16.16.100
+      user: root
+      role:
+        - controlplane
+        - etcd
+        - worker
+      ssh_key_path: .fregate.d/id_rsa
+      port: 22
+
+ignore_docker_version: false
+kubernetes_version: v1.12.2

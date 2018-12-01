@@ -12,6 +12,7 @@
 from provider.vbox import VBox
 from commons.shell import execute
 from argparse import ArgumentParser
+import services as svc
 import logging
 import socket
 import time
@@ -20,7 +21,6 @@ import sys
 import re
 
 vms = []
-
 
 def parse_args():
     parser = ArgumentParser()
@@ -34,6 +34,11 @@ def parse_args():
     subparsers.add_parser('ssh')
     subparsers.add_parser('status')
     subparsers.add_parser('down')
+    subparsers.add_parser('up')
+    parser_srv = subparsers.add_parser('services')
+    parser_srv.add_argument("--add")
+    parser_srv.add_argument("--remove")
+    parser_srv.add_argument("--purge")
     return parser.parse_args()
 
 
@@ -134,7 +139,24 @@ def down():
 
 
 def status():
+    """Vms status
+    """
     vms = VBox.list()
     for vm in vms:
         if re.search('^fregate', vm['name']):
             logging.info("Founded {}".format(vm['name']))
+
+
+def services(action, service):
+    """Services section
+    """
+    if action == 'add':
+        svc.index[service].add()
+    if action == 'remove':
+        svc.index[service].remove()
+    if action == 'purge':
+        svc.index[service].purge()
+
+def kubectl(action)
+
+

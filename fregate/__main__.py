@@ -26,7 +26,6 @@ vm_infos = {
     "box_url": "boxes/fregate-base.ova",
 }
 
-
 def main():
     logformat = '[%(levelname)-8s%(relativeCreated)8d]'\
         ' [%(name)s] %(message)15s'
@@ -36,6 +35,7 @@ def main():
     vm_infos["config"] = cfg
     args = commands.parse_args()
     vm = VBox(**vm_infos)
+    print(args)
     if args.action == "up":
         hostnetwork = HostNetwork(ip=vm_infos["network"],
                                   mask=vm_infos["netmask"])
@@ -49,6 +49,15 @@ def main():
         commands.status()
     elif args.action == "down":
         commands.down()
+    elif args.action == "services":
+        if args.add:
+            commands.services('add', args.add)
+        if args.remove:
+            commands.services('remove', args.remove)
+        if args.purge:
+            commands.services('purge', args.purge)
+    elif args.action =
+
     return 0
 
 

@@ -8,12 +8,9 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-
 # from utils import fatal
 import subprocess
 import logging
-
-
 def execute(commandline, stdout=False, wait=False, shell=False, debug=False):
     returncode = -1
     output = ""
