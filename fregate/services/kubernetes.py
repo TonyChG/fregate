@@ -11,11 +11,12 @@
 from __future__ import absolute_import
 from commons.shell import execute
 from commons.shell import logging
+
 from .service import Service
 
 class Kubernetes(Service):
-    def __init__(self, rke_path='.fregate.d/services/kubernetes/'):
-        super().__init__()
+    def __init__(self, vm, rke_path='.fregate.d/services/kubernetes/'):
+        super().__init__(vm)
         self.rke_path = rke_path
 
     def add(self):
@@ -25,7 +26,7 @@ class Kubernetes(Service):
         if code != 0:
             logging.critical("Add kubernetes failed {}: {}".format(code, output))
             return False
-        logging.info("Kubernetes is deployed")
+        logging.info("Kubernetes .. OK")
         return True
 
     def remove(self):
@@ -33,22 +34,28 @@ class Kubernetes(Service):
         logging.info("Kubernetes is undeploying ...")
         code, output = execute(rke, wait=True, stdout=True, shell=True)
         if code != 0:
-            logging.critical("Remove kubernetes failed {}: {}".format(code, output))
+            logging.critical("Remove kubernetes .. FAILED {}: {}".format(code, output))
             return False
             return False
-        logging.info("Kubernetes is undeployed")
+        logging.info("Kubernetes removed .. OK")
         return True
 
-    def purge(self):
+    def clean(self):
         self.remove()
-        cmd = "docker stop $(docker ps | egrep -h 'k8s|etcd' | awk '{print $1}')"
-        code, output = execute(cmd, wait=True, stdout=True, shell=True)
+        ssh_cmd = self.vm.get_sshcmd()
+        cmd = " 'bash -s' < 'scripts/clean_k8s.sh'"
+        remove_cmd = ssh_cmd + cmd
+        code, output = execute(remove_cmd, wait=True, stdout=True, shell=True)
         if code != 0:
-            logging.critical("Purge kubernetes failed {}: {}".format(code, output))
+            logging.critical("Clean kubernetes failed {}: {}".format(code, output))
             return False
             return False
-        logging.info("Kubernetes is purged")
+        logging.info("Kubernetes cleaned")
         return True
 
     def describe(self):
-        print('describe')
+        print('''
+        Kubernetes service:
+            this service will deploy a kubernetes cluster,
+            using the `cluster.yaml` fil.
+            ''')

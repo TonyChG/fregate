@@ -8,7 +8,6 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-
 from provider.vbox import VBox
 from commons.shell import execute
 from argparse import ArgumentParser
@@ -38,7 +37,8 @@ def parse_args():
     parser_srv = subparsers.add_parser('services')
     parser_srv.add_argument("--add")
     parser_srv.add_argument("--remove")
-    parser_srv.add_argument("--purge")
+    parser_srv.add_argument("--clean")
+    parser_srv.add_argument("--describe")
     return parser.parse_args()
 
 
@@ -147,16 +147,21 @@ def status():
             logging.info("Founded {}".format(vm['name']))
 
 
-def services(action, service):
+def services(action, service, vm):
     """Services section
     """
+    index = svc.index(vm)
     if action == 'add':
-        svc.index[service].add()
+        index[service].add()
     if action == 'remove':
-        svc.index[service].remove()
-    if action == 'purge':
-        svc.index[service].purge()
+        index[service].remove()
+    if action == 'clean':
+        index[service].clean()
+    if action == 'describe':
+        index[service].describe()
 
-def kubectl(action)
+
+def kubectl(action):
+    pass
 
 

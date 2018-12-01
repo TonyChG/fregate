@@ -8,10 +8,13 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
+
 class Service:
-    def __init__(self):
+    def __init__(self, vm):
         self.name = None
+        self.vm = vm
         self.description = None
         self.alias = None
         self.dependencies = []
         self.state = False
+

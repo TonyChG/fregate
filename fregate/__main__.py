@@ -35,7 +35,6 @@ def main():
     vm_infos["config"] = cfg
     args = commands.parse_args()
     vm = VBox(**vm_infos)
-    print(args)
     if args.action == "up":
         hostnetwork = HostNetwork(ip=vm_infos["network"],
                                   mask=vm_infos["netmask"])
@@ -51,15 +50,14 @@ def main():
         commands.down()
     elif args.action == "services":
         if args.add:
-            commands.services('add', args.add)
+            commands.services('add', args.add, vm)
         if args.remove:
-            commands.services('remove', args.remove)
-        if args.purge:
-            commands.services('purge', args.purge)
-    elif args.action =
-
+            commands.services('remove', args.remove, vm)
+        if args.clean:
+            commands.services('clean', args.clean, vm)
+        if args.describe:
+            commands.services('describe', args.describe, vm)
     return 0
-
 
 if __name__ == '__main__':
     try:

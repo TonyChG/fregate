@@ -10,7 +10,7 @@
 
 set -ex
 
-apk add --no-cache -q rsync
+apk add --no-cache -q rsync bash
 
 echo "{{ VM_HOSTNAME }}" > /etc/hostname
 hostname -F /etc/hostname

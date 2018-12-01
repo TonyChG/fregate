@@ -14,7 +14,13 @@ from .kubernetes import Kubernetes
 from .dashboard import Dashboard
 from .docker_registry import Registry
 
+index = None
+
 # Services singletons
-index = {'kubernetes': Kubernetes(),
-        'dashboard': Dashboard(),
-        'registry': Registry()}
+def index(vm):
+    index = {'kubernetes': Kubernetes(vm),
+             'dashboard': Dashboard(),
+             'registry': Registry()}
+    return index
+
+
