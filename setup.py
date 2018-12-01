@@ -19,6 +19,7 @@ setup(
     name='fregate',
     version='1.0',
     description='Multi nodes - Kubernetes Cluster CLI',
+    license='MIT',
     scripts=[
         "bin/fregate"
     ],
@@ -35,7 +36,7 @@ setup(
     classifiers=[
       "Development Status :: 5 - Production/Stable",
       "Topic :: Software Development :: Libraries :: Python Modules",
-      "License :: Other/Proprietary License",
+      "License :: MIT",
       "Programming Language :: Python :: 3",
     ],
 )
