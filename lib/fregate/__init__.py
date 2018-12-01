@@ -33,7 +33,8 @@ def main():
         ' [%(name)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=logformat)
     logger = logging.getLogger('fregate')
-    logger.debug("Fregate {}".format('1.0'))
+    logger.debug("-"*30)
+    logger.debug("         Fregate {}".format('1.0'))
 
     cfg = config.read()
     args = commands.parse_args()
@@ -42,7 +43,7 @@ def main():
         with open(args.configfile) as f:
             configfile = yaml.load(f.read())
             network = configfile.get("network")
-            vmlist = configfile.get("vms")
+            vmlist = configfile.get("nodes")
     except Exception:
         logger.critical("Failed to open nodes.yml")
         sys.exit(-1)

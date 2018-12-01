@@ -23,6 +23,7 @@ import re
 
 _vms = []
 _firstforward_port = 2222
+logger = logging.getLogger('fregate')
 
 
 def parse_args():
@@ -122,14 +123,14 @@ def up(cfg, vmlist, network={}, daemonize=False):
         try:
             while _running:
                 vm.getinfo()
-                logging.info("{} is running with address {}"
-                             .format(vm.name, vm.ip))
+                logger.info("{} is running with address {}"
+                            .format(vm.name, vm.ip))
                 _vms.append(vm)
                 input("Ctrl+c to remove the infra\n")
                 _running = False
                 print()
         except KeyboardInterrupt:
-            logging.info("Remove host network")
+            logger.info("Remove host network")
             down(cfg, vmlist)
             clean(cfg, vmlist)
 
@@ -160,8 +161,8 @@ def status(cfg, vmlist):
     for vm in _vms:
         vm.getinfo()
         if vm.infos.get("VMState") == "running":
-            logging.info("-"*30)
-            logging.info("   {} is running".format(vm.name))
-            logging.info("   Hostname   : {}".format(vm.hostname))
-            logging.info("   Ip         : {}".format(vm.ip))
-            logging.info("   User       : {}".format(vm.ssh_user))
+            logger.info("-"*30)
+            logger.info("   {} is running".format(vm.name))
+            logger.info("   Hostname   : {}".format(vm.hostname))
+            logger.info("   Ip         : {}".format(vm.ip))
+            logger.info("   User       : {}".format(vm.ssh_user))
