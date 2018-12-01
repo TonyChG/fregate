@@ -1,5 +1,10 @@
 ## Fregate
+Author: TonyChG
+Contributor: Dauliac
 
+## Requirements
+
+- You simply need `virtualbox` installed
 
 ## Installation
 
@@ -12,6 +17,6 @@ pip install -e .
 ## Usage
 
 ```
-fregate up
-fregate ssh fregate-001
+fregate -c <configfile> up
+fregate -c <configfile> ssh fregate-001
 ```
