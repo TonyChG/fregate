@@ -49,6 +49,16 @@ def run(args, cfg, vmlist, network):
         commands.status(cfg, vmlist)
     elif args.action == "down":
         commands.down(cfg, vmlist)
+        commands.down()
+    elif args.action == "services":
+        if args.add:
+            commands.services('add', args.add, vm)
+        if args.remove:
+            commands.services('remove', args.remove, vm)
+        if args.clean:
+            commands.services('clean', args.clean, vm)
+        if args.describe:
+            commands.services('describe', args.describe, vm)
     return 0
 
 

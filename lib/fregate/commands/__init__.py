@@ -8,10 +8,10 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-
 from lib.fregate.provider.network import HostNetwork
 from lib.fregate.provider.vbox import VBox
 from lib.fregate.commons.shell import execute
+from lib.fregate import services
 from argparse import ArgumentParser
 import logging
 import socket
@@ -24,7 +24,6 @@ import re
 _vms = []
 _firstforward_port = 2222
 logger = logging.getLogger('fregate')
-
 
 def parse_args():
     parser = ArgumentParser()
@@ -42,6 +41,12 @@ def parse_args():
     ssh_parser.add_argument("vm_name")
     subparsers.add_parser('status')
     subparsers.add_parser('down')
+    subparsers.add_parser('up')
+    parser_srv = subparsers.add_parser('services')
+    parser_srv.add_argument("--add")
+    parser_srv.add_argument("--remove")
+    parser_srv.add_argument("--clean")
+    parser_srv.add_argument("--describe")
     return parser.parse_args()
 
 
@@ -167,3 +172,37 @@ def status(cfg, vmlist):
             logger.info("   Hostname   : {}".format(vm.hostname))
             logger.info("   Ip         : {}".format(vm.ip))
             logger.info("   User       : {}".format(vm.ssh_user))
+    vms = VBox.list()
+    for vm in vms:
+        if re.search('^fregate', vm['name']):
+            VBox.force_stop(vm['uuid'])
+
+
+def status():
+    """Vms status
+    """
+    vms = VBox.list()
+    for vm in vms:
+        if re.search('^fregate', vm['name']):
+            logging.info("Founded {}".format(vm['name']))
+
+
+def services(action, service, vm):
+    """Services section
+    """
+    index = services.index(vm)
+    if action == 'add':
+        index[service].add()
+    if action == 'remove':
+        index[service].remove()
+    if action == 'clean':
+        index[service].clean()
+    if action == 'describe':
+        index[service].describe()
+
+
+def kubectl(action):
+    pass
+
+
+>>>>>>> k8s

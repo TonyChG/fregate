@@ -96,6 +96,8 @@ class VBox:
                              or a directory/file from the guest
             @dest            Remote dest on the guest or a
                              directory/file on your host
+            @docker socket  Get the ssh cmd to forward docker socket
+                            usage: [dest, src]
         """
         ssh_command = "scp" if scp else "ssh"
         ssh_port = "-P" if scp else "-p"
@@ -111,7 +113,7 @@ class VBox:
             ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {} {}"\
                 .format(ssh_command, ssh_port, self.ssh_privkey, target, dest)
         elif scp is False:
-            ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
+                ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
                 .format(ssh_command, ssh_port, self.ssh_privkey, self.ssh_user,
                         ssh_ip)
         else:
@@ -238,7 +240,8 @@ class VBox:
             self.logger.info("Download finished")
 
     def rename(self, target, new_name):
-        code = execute(["vboxmanage", "modifyvm", target, "--name", new_name])
+        print(["vboxmanage", "modifyvm", target, "--name", new_name])
+        code, output = execute(["vboxmanage", "modifyvm", target, "--name", new_name], stdout=True, shell=True)
         if code is not 0:
             self.logger.warning("Failed to rename box {}".format(target))
         else:
