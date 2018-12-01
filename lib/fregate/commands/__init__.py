@@ -172,18 +172,19 @@ def status(cfg, vmlist):
             logger.info("   Ip         : {}".format(vm.ip))
             logger.info("   User       : {}".format(vm.ssh_user))
 
-# def services(action, service, vm):
-#     """Services section
-#     """
-#     index = services.index(vm)
-#     if action == 'add':
-#         index[service].add()
-#     if action == 'remove':
-#         index[service].remove()
-#     if action == 'clean':
-#         index[service].clean()
-#     if action == 'describe':
-#         index[service].describe()
+
+def services(action, service, vm):
+    """Services section
+    """
+    index = services.index(vm)
+    if action == 'add':
+        index[service].add()
+    if action == 'remove':
+        index[service].remove()
+    if action == 'clean':
+        index[service].clean()
+    if action == 'describe':
+        index[service].describe()
 
 
 def kubectl(action):
