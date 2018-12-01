@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 # =============================================================================
-# Name     : __main__.py
+# Name     : __init__.py
 # Function :
 # Usage    :
 # Version  : 1.0.0
@@ -11,11 +11,12 @@
 
 # import datetime
 import sys
-import config
 import logging
-import commands
-from provider.vbox import VBox
-from provider.network import HostNetwork
+import atexit
+import lib.fregate.config as config
+import lib.fregate.commands as commands
+from lib.fregate.provider.vbox import VBox
+from lib.fregate.provider.network import HostNetwork
 
 
 vm_infos = {
@@ -23,8 +24,15 @@ vm_infos = {
     "network": "172.16.16.1",
     "netmask": "255.255.255.0",
     "hostname": "fregate-001",
-    "box_url": "boxes/fregate-base.ova",
+    "box_url": "http://repository.dotfile.eu/fregate-base-v1.ova",
 }
+
+
+@atexit.register
+def onexit():
+    print("Exiting ..")
+    commands.clean()
+    sys.exit(0)
 
 
 def main():

@@ -13,8 +13,8 @@
 
 import re
 import logging
-from commons.shell import execute
-from commons.utils import fatal
+from lib.fregate.commons.shell import execute
+from lib.fregate.commons.utils import fatal
 
 
 class HostNetwork:

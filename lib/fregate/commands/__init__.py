@@ -9,8 +9,8 @@
 # =============================================================================
 
 
-from provider.vbox import VBox
-from commons.shell import execute
+from lib.fregate.provider.vbox import VBox
+from lib.fregate.commons.shell import execute
 from argparse import ArgumentParser
 import logging
 import socket

@@ -12,8 +12,8 @@ import re
 import logging
 import subprocess
 from jinja2 import Template
-from commons.utils import fatal
-from commons.shell import execute
+from lib.fregate.commons.utils import fatal
+from lib.fregate.commons.shell import execute
 
 
 class VBox:
@@ -263,11 +263,12 @@ class VBox:
             Start the vm
         """
         command = ["vboxmanage", "startvm", self.name, "--type", mode]
-        if len(env.keys()) is not 0:
-            for key in env.keys():
-                self.logger.debug("ENV {}={}".format(key, env[key]))
-                command.append("-E")
-                command.append('{}="{}"'.format(key, env[key]))
+        # Not working like we want
+        # if len(env.keys()) is not 0:
+        #     for key in env.keys():
+        #         self.logger.debug("ENV {}={}".format(key, env[key]))
+        #         command.append("-E")
+        #         command.append('{}="{}"'.format(key, env[key]))
         code = execute(command)
         if code is not 0:
             fatal("Failed to start {}".format(self.name))

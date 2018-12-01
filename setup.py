@@ -20,17 +20,19 @@ setup(
     version='1.0',
     description='Multi nodes - Kubernetes Cluster CLI',
     scripts=[
-        "fregate"
+        "bin/fregate"
     ],
     author='Antoine CHINY',
     author_email='antoine.chiny@inria.fr',
     url='https://gitlab.dotfile.eu/tonychg/fregate',
     packages=[
-        "fregate.commands",
-        "fregate.services",
-        "fregate.commons",
+        "lib/fregate.commands",
+        "lib/fregate.services",
+        "lib/fregate.commons",
     ],
     install_requires=[
+        "pyyaml",
+        "jinja2"
     ],
     long_description=long_description,
     python_requires='>=3.4',
