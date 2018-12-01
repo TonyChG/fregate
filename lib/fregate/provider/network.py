@@ -20,6 +20,8 @@ from lib.fregate.commons.utils import fatal
 class HostNetwork:
     @staticmethod
     def list(network={}):
+        """ List mapping host only network from config file
+        """
         code, output = execute([
             "vboxmanage", "list", "hostonlyifs"
         ], stdout=True)

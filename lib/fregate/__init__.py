@@ -36,6 +36,8 @@ def _setup_logging():
 
 
 def run(args, cfg, vmlist, network):
+    """ Running correspondant command for action in command line
+    """
     if args.action == "up":
         commands.up(cfg, vmlist, network, daemonize=args.daemonize)
     elif args.action == "clean":

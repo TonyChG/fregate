@@ -29,7 +29,7 @@ logger = logging.getLogger('fregate')
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument("-c, --config", dest="configfile",
-                        default=os.getcwd()+"/nodes",
+                        default=os.getcwd()+"/nodes.yml",
                         help="Config path where vm specifications are store")
     subparsers = parser.add_subparsers(help='Action to execute')
     subparsers.dest = 'action'
