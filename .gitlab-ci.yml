@@ -1,6 +1,5 @@
 stages:
   - tests
-  - deploy
 tests_dev:
   stage: tests
   script:
