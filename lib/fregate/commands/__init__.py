@@ -41,7 +41,6 @@ def parse_args():
     ssh_parser.add_argument("vm_name")
     subparsers.add_parser('status')
     subparsers.add_parser('down')
-    subparsers.add_parser('up')
     parser_srv = subparsers.add_parser('services')
     parser_srv.add_argument("--add")
     parser_srv.add_argument("--remove")
@@ -203,6 +202,3 @@ def services(action, service, vm):
 
 def kubectl(action):
     pass
-
-
->>>>>>> k8s
