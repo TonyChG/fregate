@@ -13,8 +13,8 @@
 
 import re
 import logging
-from commons.shell import execute
-from commons.utils import fatal
+from lib.fregate.commons.shell import execute
+from lib.fregate.commons.utils import fatal
 
 
 class HostNetwork:
@@ -22,6 +22,7 @@ class HostNetwork:
         self.ip = ip
         self.mask = mask
         self.name = None
+        self.logger = logging.getLogger("hostnetwork")
 
     def create(self):
         """ @params ip hostonly network ip
@@ -43,7 +44,7 @@ class HostNetwork:
                     ])
                     if code is not 0:
                         fatal("Failed to update network config")
-        logging.debug("Network {} is created".format(self.name))
+        self.logger.debug("Network {} is created".format(self.name))
         return self.name
 
     def delete(self):
@@ -54,7 +55,7 @@ class HostNetwork:
         ])
         if code is not 0:
             fatal("Failed to delete new host only network")
-        logging.debug("Network {} is deleted".format(self.name))
+        self.logger.debug("Network {} is deleted".format(self.name))
         return 0
 
     def attach(self, vm):
@@ -71,7 +72,7 @@ class HostNetwork:
         ])
         if code is not 0:
             fatal("Failed to attach {} to {}".format(self.name, vm.name))
-        logging.debug("Sucessfully attached {} to {}"
-                      .format(self.name, vm.name))
+        self.logger.debug("Sucessfully attached {} to {}"
+                          .format(self.name, vm.name))
         vm.box_network = self
         return 0

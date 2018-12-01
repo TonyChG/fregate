@@ -8,12 +8,18 @@
 # =============================================================================
 
 
+import os
+import sys
 import re
 import logging
 import subprocess
+from urllib.parse import urlparse
+from urllib.request import urlopen
 from jinja2 import Template
-from commons.utils import fatal
-from commons.shell import execute
+from lib.fregate.commons.utils import fatal
+from lib.fregate.commons.shell import execute
+
+BOX_FOLDER = "boxes"
 
 
 class VBox:
@@ -71,7 +77,7 @@ class VBox:
         self.network = network
         self.netmask = netmask
         self.infos = {}
-        self.name = None
+        self.name = self.hostname
         self.box_network = None
         self.forwarding_enabled = False
         self.ssh_privkey = config["ssh"]["privkey"]
@@ -99,7 +105,7 @@ class VBox:
         if forwarding:
             self.logger.debug("Connect to ssh with forwarding")
             ssh_ip = "127.0.0.1"
-            ssh_port += " {}".format(2222)
+            ssh_port += " {}".format(self.forwared_port)
         else:
             ssh_ip = self.ip
             ssh_port += " {}".format(self.ssh_port)
@@ -130,6 +136,7 @@ class VBox:
                              .format(host_ip, host_port,
                                      self.name, guest_port))
             self.forwarding_enabled = True
+            self.forwared_port = host_port
             return 0
 
     def copy_firstboot(self, script_path):
@@ -162,10 +169,11 @@ class VBox:
             with open(script) as f:
                 t = Template(f.read())
                 firstboot_script = t.render(
+                    kwargs,
                     VM_IP=self.ip,
                     VM_NETMASK=self.netmask,
                     VM_NETWORK=self.network,
-                    VM_HOSTNAME=self.hostname
+                    VM_HOSTNAME=self.hostname,
                 )
                 f.close()
             self.logger.info("Success read template {}".format(script))
@@ -212,11 +220,47 @@ class VBox:
                         self.infos[splited_line[0]] = value
             return self.infos
 
+    def download_box(self):
+        try:
+            parsed_url = urlparse(self.box_url)
+            if parsed_url.scheme in ['http', 'https']:
+                self.logger.info("Downloading box : {}"
+                                 .format(parsed_url.geturl()))
+                with open(self.box_path, 'wb+') as f:
+                    self.logger.info(self.box_path)
+                    response = urlopen(parsed_url.geturl())
+                    data = response.read()
+                    f.write(data)
+                    f.close()
+                sys.exit(0)
+        except Exception as e:
+            fatal("Failed to open {}".format(self.box_path), exception=e)
+        else:
+            self.logger.info("Download finished")
+
+    def rename(self, target, new_name):
+        print(["vboxmanage", "modifyvm", target, "--name", new_name])
+        code, output = execute(["vboxmanage", "modifyvm", target, "--name", new_name], stdout=True, shell=True)
+        if code is not 0:
+            self.logger.warning("Failed to rename box {}".format(target))
+        else:
+            self.logger.info("Rename box {} => {}".format(target, new_name))
+            self.name = new_name
+        return code
+
     def import_box(self):
         """ @params box_url box .ova url
             Import a .ova from url
         """
-        code, output = execute(["vboxmanage", "import", self.box_url],
+        parsed_url = urlparse(self.box_url)
+        if parsed_url.scheme in ['http', 'https']:
+            self.box_path = BOX_FOLDER + parsed_url.path
+        if os.stat(self.box_path) is None:
+            self.logger.info("{} doest not exists".format(self.box_path))
+            self.download_box()
+        else:
+            self.logger.info("Importing {}".format(self.box_path))
+        code, output = execute(["vboxmanage", "import", self.box_path],
                                stdout=True)
         if code is not 0:
             fatal("Failed to import {}".format(self.box_url))
@@ -225,9 +269,10 @@ class VBox:
                 if line is not None:
                     vm_name = re.search('".+"', line)
                     if re.search("VM name", line) and vm_name is not None:
-                        self.name = re.sub('"', '', vm_name.group(0))
+                        vm_name = re.sub('"', '', vm_name.group(0))
                         self.logger.debug("VM {} is imported"
-                                          .format(self.name))
+                                          .format(vm_name))
+                        self.rename(vm_name, self.hostname)
                         return 0
         return -1
 
@@ -265,11 +310,12 @@ class VBox:
             Start the vm
         """
         command = ["vboxmanage", "startvm", self.name, "--type", mode]
-        if len(env.keys()) is not 0:
-            for key in env.keys():
-                self.logger.debug("ENV {}={}".format(key, env[key]))
-                command.append("-E")
-                command.append('{}="{}"'.format(key, env[key]))
+        # Not working like we want
+        # if len(env.keys()) is not 0:
+        #     for key in env.keys():
+        #         self.logger.debug("ENV {}={}".format(key, env[key]))
+        #         command.append("-E")
+        #         command.append('{}="{}"'.format(key, env[key]))
         code = execute(command)
         if code is not 0:
             fatal("Failed to start {}".format(self.name))
@@ -281,11 +327,11 @@ class VBox:
         """ @params name <vm name|uuid>
             Stop the vm
         """
-        code = execute([
+        code, output = execute([
             "vboxmanage", "controlvm", self.name, "poweroff"
-        ], stdout=False)
+        ], stdout=True)
         if code is not 0:
             fatal("Failed to stop {}".format(self.name))
         else:
-            self.logger.debug("Stop VM {}".format(self.name))
+            self.logger.debug("VM {} stopped".format(self.name))
         return 0
