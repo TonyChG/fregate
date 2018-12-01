@@ -3,7 +3,7 @@ stages:
 tests_dev:
   stage: tests
   script:
-    - echo "Testing fregate $(cat version.txt) $(date +%F %D)" >> /var/log/gitci.log
+    - echo "Testing fregate $(cat version.txt) $(date +%F\ %D)" >> /var/log/gitci.log
     - pip3 install --user -e .
     - fregate -h
   only:
