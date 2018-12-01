@@ -9,7 +9,7 @@
 # =============================================================================
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 long_description = """
 fregate help you to install kubernetes with all fancy services
@@ -25,12 +25,7 @@ setup(
     author='Antoine CHINY',
     author_email='antoine.chiny@inria.fr',
     url='https://gitlab.dotfile.eu/tonychg/fregate',
-    packages=[
-        "lib/fregate",
-        "lib/fregate.commands",
-        "lib/fregate.services",
-        "lib/fregate.commons",
-    ],
+    packages=find_packages(),
     install_requires=[
         "pyyaml",
         "jinja2"
