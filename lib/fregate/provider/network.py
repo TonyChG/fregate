@@ -18,10 +18,38 @@ from lib.fregate.commons.utils import fatal
 
 
 class HostNetwork:
-    def __init__(self, ip=None, mask=None):
+    @staticmethod
+    def list(network={}):
+        code, output = execute([
+            "vboxmanage", "list", "hostonlyifs"
+        ], stdout=True)
+        if code is not 0:
+            fatal("Failed to list host only network")
+        networks = []
+        ip_match = False
+        name = ""
+        for line in output:
+            if line is not None:
+                search_name = re.search("Name:[\t ]+vboxnet[0-9]+",
+                                        line.strip())
+                if search_name is not None:
+                    name = re.sub("Name:[\t ]+", "", search_name.group(0))
+                if re.search(network["ip"], line.strip()) is not None:
+                    ip_match = True
+                if re.search(network["mask"], line.strip()) is not None \
+                        and ip_match:
+                    ip_match = False
+                    networks.append({
+                        "ip": network["ip"],
+                        "mask": network["mask"],
+                        "name": name
+                    })
+        return networks
+
+    def __init__(self, ip=None, mask=None, name=None):
         self.ip = ip
         self.mask = mask
-        self.name = None
+        self.name = name
         self.logger = logging.getLogger("hostnetwork")
 
     def create(self):
@@ -54,7 +82,7 @@ class HostNetwork:
             "vboxmanage", "hostonlyif", "remove", self.name
         ])
         if code is not 0:
-            fatal("Failed to delete new host only network")
+            fatal("Failed to delete host only network {}".format(self.name))
         self.logger.debug("Network {} is deleted".format(self.name))
         return 0
 

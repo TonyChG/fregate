@@ -60,7 +60,7 @@ def main():
     if args.action == "up":
         commands.up(cfg, vmlist, network)
     elif args.action == "clean":
-        commands.clean()
+        commands.clean(network=network)
     elif args.action == "ssh":
         commands.ssh(cfg, vmlist, args.vm_name)
         sys.exit(0)

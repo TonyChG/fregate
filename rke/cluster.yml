@@ -7,6 +7,12 @@ nodes:
         - worker
       ssh_key_path: ../.fregate.d/id_rsa
       port: 22
+    - address: 172.16.16.101
+      user: root
+      role:
+        - worker
+      ssh_key_path: ../.fregate.d/id_rsa
+      port: 22
 
 ignore_docker_version: false
 kubernetes_version: v1.12.2

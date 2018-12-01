@@ -269,8 +269,7 @@ class VBox:
                         vm_name = re.sub('"', '', vm_name.group(0))
                         self.logger.debug("VM {} is imported"
                                           .format(vm_name))
-                        self.rename(vm_name, self.hostname)
-                        return 0
+                        return self.rename(vm_name, self.hostname)
         return -1
 
     def create(self):

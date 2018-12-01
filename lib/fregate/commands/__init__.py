@@ -116,18 +116,20 @@ def up(cfg, vmlist, network={}, wait_port=22):
             _vms.append(vm)
             input("Ctrl+c to remove the infra\n")
             _running = False
+            print()
     except KeyboardInterrupt:
-        pass
-    print()
-    logging.info("Remove host network")
-    hostnetwork.delete()
-    down()
-    clean()
+        logging.info("Remove host network")
+        down()
+        clean()
 
 
-def clean():
+def clean(network={}):
     """ Remove all box with name fregate
     """
+    networks = HostNetwork.list(network=network)
+    for hostnetwork in networks:
+        hostnetwork_obj = HostNetwork(**hostnetwork)
+        hostnetwork_obj.delete()
     vms = VBox.list()
     for vm in vms:
         if re.search('^fregate', vm['name']):
