@@ -33,8 +33,7 @@ deploy_master:
   stage: deploy
   script:
     - echo "$(date +%F\ %D) Deploying release fregate-$(cat version.txt) as pip package" >> /var/log/gitci.log
-    - tar --exclude .gitlab-ci.yml --exclude .git --exclude boxes -cvz -f "fregate-$(cat version.txt).tar.gz" .
-    - sudo /usr/local/scripts/push_package.sh "fregate-$(cat version.txt).tar.gz"
+    - sudo /usr/local/scripts/push_package.sh
   only:
     - master
   tags:
