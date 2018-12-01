@@ -206,7 +206,8 @@ class VBox:
             "vboxmanage", "showvminfo", self.name, "--machinereadable"
         ], stdout=True)
         if code is not 0:
-            fatal("Failed to retrieve infos of {}".format(self.name))
+            self.logger.warning("Failed to retrieve infos of {}"
+                                .format(self.name))
         else:
             for info in output:
                 if info is not None:

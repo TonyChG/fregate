@@ -17,7 +17,7 @@ import logging
 import socket
 import time
 # import signal
-# import sys
+import sys
 import re
 
 _vms = []
@@ -40,10 +40,16 @@ def parse_args():
     return parser.parse_args()
 
 
-def ssh(cfg, vmlist, vm_name):
+def _get_vmlist(cfg, vmlist):
     for vm_info in vmlist:
         vm_info["config"] = cfg
-        vm = VBox(**vm_info)
+        _vms.append(VBox(**vm_info))
+        _vms[-1].getinfo()
+
+
+def ssh(cfg, vmlist, vm_name):
+    _get_vmlist(cfg, vmlist)
+    for vm in _vms:
         if vm.hostname == vm_name:
             vm.ssh()
 
@@ -119,8 +125,8 @@ def up(cfg, vmlist, network={}, wait_port=22):
             print()
     except KeyboardInterrupt:
         logging.info("Remove host network")
-        down()
-        clean()
+        down(cfg, vmlist)
+        clean(cfg, vmlist)
 
 
 def clean(network={}):
@@ -128,25 +134,25 @@ def clean(network={}):
     """
     networks = HostNetwork.list(network=network)
     for hostnetwork in networks:
-        hostnetwork_obj = HostNetwork(**hostnetwork)
-        hostnetwork_obj.delete()
+        hostnetwork.delete()
     vms = VBox.list()
     for vm in vms:
         if re.search('^fregate', vm['name']):
             VBox.destroy(vm['uuid'])
 
 
-def down():
+def down(cfg, vmlist):
     """ Stop all box
     """
-    vms = VBox.list()
-    for vm in vms:
-        if re.search('^fregate', vm['name']):
-            VBox.force_stop(vm['uuid'])
+    _get_vmlist(cfg, vmlist)
+    for vm in _vms:
+        if re.search('^fregate', vm.name):
+            vm.stop()
 
 
-def status():
-    vms = VBox.list()
-    for vm in vms:
-        if re.search('^fregate', vm['name']):
-            logging.info("Founded {}".format(vm['name']))
+def status(cfg, vmlist):
+    _get_vmlist(cfg, vmlist)
+    for vm in _vms:
+        if re.search('^fregate', vm.name):
+            logging.info("Founded {}".format(vm.name))
+            logging.info("{}".format(vm.infos))

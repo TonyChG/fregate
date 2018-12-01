@@ -39,11 +39,11 @@ class HostNetwork:
                 if re.search(network["mask"], line.strip()) is not None \
                         and ip_match:
                     ip_match = False
-                    networks.append({
-                        "ip": network["ip"],
-                        "mask": network["mask"],
-                        "name": name
-                    })
+                    networks.append(HostNetwork(
+                        ip=network["ip"],
+                        name=name,
+                        mask=network["mask"]
+                    ))
         return networks
 
     def __init__(self, ip=None, mask=None, name=None):

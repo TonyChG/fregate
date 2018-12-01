@@ -65,9 +65,9 @@ def main():
         commands.ssh(cfg, vmlist, args.vm_name)
         sys.exit(0)
     elif args.action == "status":
-        commands.status()
+        commands.status(cfg, vmlist)
     elif args.action == "down":
-        commands.down()
+        commands.down(cfg, vmlist)
     return 0
 
 
