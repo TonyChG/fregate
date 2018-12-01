@@ -6,3 +6,5 @@ tests_dev:
     - echo $(date) >> /var/log/gitci.log
   only:
     - dev
+  tags:
+    - tests
