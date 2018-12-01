@@ -15,28 +15,7 @@ import logging
 import atexit
 import lib.fregate.config as config
 import lib.fregate.commands as commands
-
-network = {
-    "ip": "172.16.16.1",
-    "mask": "255.255.255.0"
-}
-
-vmlist = [
-    {
-        "ip": "172.16.16.100",
-        "network": "172.16.16.1",
-        "netmask": "255.255.255.0",
-        "hostname": "fregate-001",
-        "box_url": "http://repository.dotfile.eu/fregate-base-v1.ova",
-    },
-    {
-        "ip": "172.16.16.101",
-        "network": "172.16.16.1",
-        "netmask": "255.255.255.0",
-        "hostname": "fregate-002",
-        "box_url": "http://repository.dotfile.eu/fregate-base-v1.ova",
-    },
-]
+import yaml
 
 
 @atexit.register
@@ -55,10 +34,21 @@ def main():
     logging.basicConfig(level=logging.DEBUG, format=logformat)
     logger = logging.getLogger('fregate')
     logger.debug("Fregate {}".format('1.0'))
+
     cfg = config.read()
     args = commands.parse_args()
+
+    try:
+        with open(args.configfile) as f:
+            configfile = yaml.load(f.read())
+            network = configfile.get("network")
+            vmlist = configfile.get("vms")
+    except Exception:
+        logger.critical("Failed to open nodes.yml")
+        sys.exit(-1)
+
     if args.action == "up":
-        commands.up(cfg, vmlist, network)
+        commands.up(cfg, vmlist, network, daemonize=args.daemonize)
     elif args.action == "clean":
         commands.clean(network=network)
     elif args.action == "ssh":

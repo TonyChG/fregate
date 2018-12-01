@@ -17,7 +17,8 @@ import logging
 import socket
 import time
 # import signal
-import sys
+# import sys
+import os
 import re
 
 _vms = []
@@ -26,12 +27,15 @@ _firstforward_port = 2222
 
 def parse_args():
     parser = ArgumentParser()
+    parser.add_argument("-c, --config", dest="configfile",
+                        default=os.getcwd()+"/nodes",
+                        help="Config path where vm specifications are store")
     subparsers = parser.add_subparsers(help='Action to execute')
     subparsers.dest = 'action'
     subparsers.required = True
     up_parser = subparsers.add_parser('up')
     up_parser.add_argument("-d, --daemon", action="store_true",
-                           default=False)
+                           default=False, dest="daemonize")
     subparsers.add_parser('clean')
     ssh_parser = subparsers.add_parser('ssh')
     ssh_parser.add_argument("vm_name")
@@ -44,7 +48,7 @@ def _get_vmlist(cfg, vmlist):
     for vm_info in vmlist:
         vm_info["config"] = cfg
         _vms.append(VBox(**vm_info))
-        _vms[-1].getinfo()
+        # _vms[-1].getinfo()
 
 
 def ssh(cfg, vmlist, vm_name):
@@ -85,7 +89,7 @@ def waiting_ssh(vm):
             time.sleep(1)
 
 
-def up(cfg, vmlist, network={}, wait_port=22):
+def up(cfg, vmlist, network={}, daemonize=False):
     """ Start default test infra
     """
     # signal.signal(signal.SIGINT, sigint_handler)
@@ -113,20 +117,21 @@ def up(cfg, vmlist, network={}, wait_port=22):
         vm.launch_firstboot()
         vm_count += 1
         _vms.append(vm)
-    _running = True
-    try:
-        while _running:
-            vm.getinfo()
-            logging.info("{} is running with address {}"
-                         .format(vm.name, vm.ip))
-            _vms.append(vm)
-            input("Ctrl+c to remove the infra\n")
-            _running = False
-            print()
-    except KeyboardInterrupt:
-        logging.info("Remove host network")
-        down(cfg, vmlist)
-        clean(cfg, vmlist)
+    if not daemonize:
+        _running = True
+        try:
+            while _running:
+                vm.getinfo()
+                logging.info("{} is running with address {}"
+                             .format(vm.name, vm.ip))
+                _vms.append(vm)
+                input("Ctrl+c to remove the infra\n")
+                _running = False
+                print()
+        except KeyboardInterrupt:
+            logging.info("Remove host network")
+            down(cfg, vmlist)
+            clean(cfg, vmlist)
 
 
 def clean(network={}):
@@ -153,6 +158,5 @@ def down(cfg, vmlist):
 def status(cfg, vmlist):
     _get_vmlist(cfg, vmlist)
     for vm in _vms:
-        if re.search('^fregate', vm.name):
-            logging.info("Founded {}".format(vm.name))
-            logging.info("{}".format(vm.infos))
+        print(vm.name)
+        print(vm.getinfo())

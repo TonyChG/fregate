@@ -2,3 +2,4 @@ ssh:
   privkey: .fregate.d/id_rsa
   user: root
   port: 22
+repository: http://repository.dotfile.eu
