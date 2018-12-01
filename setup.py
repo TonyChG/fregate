@@ -26,6 +26,8 @@ setup(
     author_email='antoine.chiny@inria.fr',
     url='https://gitlab.dotfile.eu/tonychg/fregate',
     packages=[
+        "lib",
+        "lib/fregate",
         "lib/fregate.commands",
         "lib/fregate.services",
         "lib/fregate.commons",
