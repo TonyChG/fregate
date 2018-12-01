@@ -9,7 +9,6 @@
 
 
 import os
-import sys
 import re
 import logging
 import subprocess
@@ -233,7 +232,6 @@ class VBox:
                     data = response.read()
                     f.write(data)
                     f.close()
-                sys.exit(0)
         except Exception as e:
             fatal("Failed to open {}".format(self.box_path), exception=e)
         else:
