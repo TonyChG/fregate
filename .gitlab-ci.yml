@@ -15,20 +15,20 @@ tests_dev:
     - dev
   tags:
     - tests
-tests_master:
-  stage: tests
-  script:
-    - echo "$(date +%F\ %D) Testing fregate $(cat version.txt)" >> /var/log/gitci.log
-    - chmod 600 .fregate.d/id_rsa
-    - pip3 install --user -e .
-    - fregate -h
-    - fregate -c tests/testinfra.yml up -d
-    - fregate -c tests/testinfra.yml down
-    - fregate -c tests/testinfra.yml clean
-  only:
-    - master
-  tags:
-    - tests
+# tests_master:
+#   stage: tests
+#   script:
+#     - echo "$(date +%F\ %D) Testing fregate $(cat version.txt)" >> /var/log/gitci.log
+#     - chmod 600 .fregate.d/id_rsa
+#     - pip3 install --user -e .
+#     - fregate -h
+#     - fregate -c tests/testinfra.yml up -d
+#     - fregate -c tests/testinfra.yml down
+#     - fregate -c tests/testinfra.yml clean
+#   only:
+#     - master
+#   tags:
+#     - tests
 # deploy_master:
 #   stage: deploy
 #   script:
