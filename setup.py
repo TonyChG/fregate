@@ -31,7 +31,7 @@ setup(
         "jinja2"
     ],
     long_description=long_description,
-    python_requires='>=3.4',
+    python_requires='>=3.7',
     classifiers=[
       "Development Status :: 5 - Production/Stable",
       "Topic :: Software Development :: Libraries :: Python Modules",

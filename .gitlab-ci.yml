@@ -4,8 +4,12 @@ tests_dev:
   stage: tests
   script:
     - echo "Testing fregate $(cat version.txt) $(date +%F\ %D)" >> /var/log/gitci.log
-    - pip3 install -e .
+    - chmod 600 .fregate.d/id_rsa
+    - pip3 install --user -e .
     - fregate -h
+    - fregate -c tests/testinfra.yml up -d
+    - fregate -c tests/testinfra.yml down
+    - fregate -c tests/testinfra.yml clean
   only:
     - dev
   tags:

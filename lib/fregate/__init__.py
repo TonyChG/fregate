@@ -37,7 +37,6 @@ def _setup_logging():
 def run(args, cfg, vmlist, network):
     """ Running correspondant command for action in command line
     """
-    print(args,cfg,vmlist,network)
     if args.action == "up":
         commands.up(cfg, vmlist, network, daemonize=args.daemonize)
     elif args.action == "clean":
@@ -66,7 +65,6 @@ def main():
     # Read config and command line
     cfg = config.read()
     args = commands.parse_args()
-    print(args)
     try:
         # Try to open default config file
         with open(args.configfile) as f:
