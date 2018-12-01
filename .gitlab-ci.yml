@@ -8,7 +8,6 @@ tests_dev:
     - source venv/bin/activate
     - pip3 install -e .
     - fregate -h
-    - deactivate
     - rm -fr venv
   only:
     - dev

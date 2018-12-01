@@ -12,6 +12,8 @@ set -ex
 
 apk add --no-cache -q rsync bash
 
+sed -i 's/ash/bash/g' /etc/passwd
+
 echo "{{ VM_HOSTNAME }}" > /etc/hostname
 hostname -F /etc/hostname
 

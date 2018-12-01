@@ -171,11 +171,6 @@ def status(cfg, vmlist):
             logger.info("   Hostname   : {}".format(vm.hostname))
             logger.info("   Ip         : {}".format(vm.ip))
             logger.info("   User       : {}".format(vm.ssh_user))
-    vms = VBox.list()
-    for vm in vms:
-        if re.search('^fregate', vm['name']):
-            VBox.force_stop(vm['uuid'])
-
 
 # def services(action, service, vm):
 #     """Services section

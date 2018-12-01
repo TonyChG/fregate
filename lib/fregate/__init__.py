@@ -16,7 +16,6 @@ import lib.fregate.config as config
 import lib.fregate.commands as commands
 import yaml
 
-
 @atexit.register
 def onexit():
     logger.info("Exiting ..")
