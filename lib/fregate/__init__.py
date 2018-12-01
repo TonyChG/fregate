@@ -24,11 +24,9 @@ def onexit():
     sys.exit(0)
 
 
-def main():
+def _setup_logging():
     global logger
-    global hostnetwork
-
-    hostnetwork = None
+    # Setup logging
     logformat = '[%(levelname)-8s%(relativeCreated)8d]'\
         ' [%(name)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=logformat)
@@ -36,18 +34,8 @@ def main():
     logger.debug("-"*30)
     logger.debug("         Fregate {}".format('1.0'))
 
-    cfg = config.read()
-    args = commands.parse_args()
 
-    try:
-        with open(args.configfile) as f:
-            configfile = yaml.load(f.read())
-            network = configfile.get("network")
-            vmlist = configfile.get("nodes")
-    except Exception:
-        logger.critical("Failed to open nodes.yml")
-        sys.exit(-1)
-
+def run(args, cfg, vmlist, network):
     if args.action == "up":
         commands.up(cfg, vmlist, network, daemonize=args.daemonize)
     elif args.action == "clean":
@@ -62,9 +50,28 @@ def main():
     return 0
 
 
+def main():
+    _setup_logging()
+    # Read config and command line
+    cfg = config.read()
+    args = commands.parse_args()
+    try:
+        # Try to open default config file
+        with open(args.configfile) as f:
+            infra = yaml.load(f.read())
+            network = infra.get("network")
+            vmlist = infra.get("nodes")
+    except Exception:
+        # Failed to read default config file
+        logger.critical("Failed to open {}".format(args.configfile))
+        sys.exit(-1)
+    else:
+        # Run command line
+        return run(args, cfg, vmlist, network)
+
+
 if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-        print("Cancel")
         sys.exit(0)

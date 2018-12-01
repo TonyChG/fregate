@@ -126,7 +126,8 @@ def up(cfg, vmlist, network={}, daemonize=False):
                 logger.info("{} is running with address {}"
                             .format(vm.name, vm.ip))
                 _vms.append(vm)
-                input("Ctrl+c to remove the infra\n")
+                input("Ctrl+c to remove the infra\n\
+                      Any other key to run in background")
                 _running = False
                 print()
         except KeyboardInterrupt:
