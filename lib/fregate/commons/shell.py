@@ -24,6 +24,7 @@ def execute(commandline, stdout=False, wait=False, shell=False, debug=False):
                 raise Exception("{} failed".format(commandline))
             output = proc.stdout.read()
             if len(output) > 0:
+                print(output)
                 output = output.decode('utf-8')[:-1]
                 output = output.split('\n')
             if wait:

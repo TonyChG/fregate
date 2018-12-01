@@ -11,7 +11,7 @@ nodes:
       user: root
       role:
         - worker
-      ssh_key_path: ../.fregate.d/id_rsa
+      ssh_key_path: .fregate.d/id_rsa
       port: 22
 
 ignore_docker_version: false

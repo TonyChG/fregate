@@ -10,9 +10,8 @@
 
 
 class Service:
-    def __init__(self, vm):
+    def __init__(self):
         self.name = None
-        self.vm = vm
         self.description = None
         self.alias = None
         self.dependencies = []

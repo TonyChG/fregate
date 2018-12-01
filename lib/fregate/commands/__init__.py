@@ -11,7 +11,7 @@
 from lib.fregate.provider.network import HostNetwork
 from lib.fregate.provider.vbox import VBox
 from lib.fregate.commons.shell import execute
-# from lib.fregate import services
+from lib.fregate import services as svc
 from argparse import ArgumentParser
 import logging
 import socket
@@ -172,18 +172,18 @@ def status(cfg, vmlist):
             logger.info("   Ip         : {}".format(vm.ip))
             logger.info("   User       : {}".format(vm.ssh_user))
 
-# def services(action, service, vm):
-#     """Services section
-#     """
-#     index = services.index(vm)
-#     if action == 'add':
-#         index[service].add()
-#     if action == 'remove':
-#         index[service].remove()
-#     if action == 'clean':
-#         index[service].clean()
-#     if action == 'describe':
-#         index[service].describe()
+def services(action, service):
+   """Services section
+   """
+   index = svc.index()
+   if action == 'add':
+       index[service].add()
+   if action == 'remove':
+       index[service].remove()
+   if action == 'clean':
+       index[service].clean()
+   if action == 'describe':
+       index[service].describe()
 
 
 def kubectl(action):

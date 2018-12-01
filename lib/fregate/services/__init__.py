@@ -17,8 +17,8 @@ from .docker_registry import Registry
 index = None
 
 # Services singletons
-def index(vm):
-    index = {'kubernetes': Kubernetes(vm),
+def index():
+    index = {'kubernetes': Kubernetes(),
              'dashboard': Dashboard(),
              'registry': Registry()}
     return index

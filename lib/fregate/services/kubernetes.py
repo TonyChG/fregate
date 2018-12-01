@@ -11,16 +11,21 @@
 from __future__ import absolute_import
 from lib.fregate.commons.shell import execute
 from lib.fregate.commons.shell import logging
+from lib.fregate.commons.utils import fatal
+from lib.fregate.provider.vbox import VBox
+import yaml
 
 from .service import Service
 
+CONFIGPATH = 'cluster.yml'
+
 class Kubernetes(Service):
-    def __init__(self, vm, rke_path='.fregate.d/services/kubernetes/'):
-        super().__init__(vm)
+    def __init__(self, rke_path='.fregate.d/services/kubernetes/'):
+        super().__init__()
         self.rke_path = rke_path
 
     def add(self):
-        rke = self.rke_path + 'rke up'
+        rke = [self.rke_path + 'rke', 'up']
         logging.info("Kubernetes is deploying ...")
         code, output = execute(rke, wait=True, stdout=True, shell=True)
         if code != 0:
@@ -30,7 +35,7 @@ class Kubernetes(Service):
         return True
 
     def remove(self):
-        rke = self.rke_path + 'rke remove --force'
+        rke = [self.rke_path + 'rke', 'remove', '--force']
         logging.info("Kubernetes is undeploying ...")
         code, output = execute(rke, wait=True, stdout=True, shell=True)
         if code != 0:
@@ -42,16 +47,27 @@ class Kubernetes(Service):
 
     def clean(self):
         self.remove()
-        ssh_cmd = self.vm.get_sshcmd()
-        cmd = " 'bash -s' < 'scripts/clean_k8s.sh'"
-        remove_cmd = ssh_cmd + cmd
-        code, output = execute(remove_cmd, wait=True, stdout=True, shell=True)
-        if code != 0:
-            logging.critical("Clean kubernetes failed {}: {}".format(code, output))
-            return False
-            return False
-        logging.info("Kubernetes cleaned")
-        return True
+        try:
+            with open(CONFIGPATH, 'r') as f:
+                cfg = yaml.load(f.read())
+        except Exception:
+            fatal("Failed to open {}".format(CONFIGPATH))
+        else:
+            vms = cfg['nodes']
+            for v in vms:
+                config = {'ssh':
+                          {'privkey': v['ssh_key_path'],
+                           'user': v['user'],
+                           'port': v['port']}}
+                vm = VBox(ip=v['address'], config=config)
+                ssh_cmd = vm.get_sshcmd()
+                cmd = " 'bash -s' < 'scripts/clean_k8s.sh'"
+                remove_cmd = ssh_cmd + cmd
+                code, output = execute(remove_cmd, wait=True, stdout=True, shell=True)
+                if code != 0:
+                    logging.critical("Clean kubernetes failed {}: {}".format(code, output))
+                logging.info("Kubernetes cleaned")
+            return True
 
     def describe(self):
         print('''
