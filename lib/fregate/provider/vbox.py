@@ -113,7 +113,7 @@ class VBox:
             ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {} {}"\
                 .format(ssh_command, ssh_port, self.ssh_privkey, target, dest)
         elif scp is False:
-                ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
+            ssh_command = "{} {} -o 'StrictHostKeyChecking=no' -i {} {}@{}"\
                 .format(ssh_command, ssh_port, self.ssh_privkey, self.ssh_user,
                         ssh_ip)
         else:
@@ -240,8 +240,7 @@ class VBox:
             self.logger.info("Download finished")
 
     def rename(self, target, new_name):
-        print(["vboxmanage", "modifyvm", target, "--name", new_name])
-        code, output = execute(["vboxmanage", "modifyvm", target, "--name", new_name], stdout=True, shell=True)
+        code = execute(["vboxmanage", "modifyvm", target, "--name", new_name])
         if code is not 0:
             self.logger.warning("Failed to rename box {}".format(target))
         else:
@@ -256,11 +255,13 @@ class VBox:
         parsed_url = urlparse(self.box_url)
         if parsed_url.scheme in ['http', 'https']:
             self.box_path = BOX_FOLDER + parsed_url.path
-        if os.stat(self.box_path) is None:
-            self.logger.info("{} doest not exists".format(self.box_path))
-            self.download_box()
-        else:
-            self.logger.info("Importing {}".format(self.box_path))
+            try:
+                os.stat(self.box_path)
+            except Exception:
+                self.logger.info("{} doest not exists".format(self.box_path))
+                self.download_box()
+            finally:
+                self.logger.info("Importing {}".format(self.box_path))
         code, output = execute(["vboxmanage", "import", self.box_path],
                                stdout=True)
         if code is not 0:

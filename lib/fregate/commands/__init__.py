@@ -11,7 +11,7 @@
 from lib.fregate.provider.network import HostNetwork
 from lib.fregate.provider.vbox import VBox
 from lib.fregate.commons.shell import execute
-from lib.fregate import services
+# from lib.fregate import services
 from argparse import ArgumentParser
 import logging
 import socket
@@ -24,6 +24,7 @@ import re
 _vms = []
 _firstforward_port = 2222
 logger = logging.getLogger('fregate')
+
 
 def parse_args():
     parser = ArgumentParser()
@@ -157,8 +158,7 @@ def down(cfg, vmlist):
     """
     _get_vmlist(cfg, vmlist)
     for vm in _vms:
-        if re.search('^fregate', vm.name):
-            vm.stop()
+        vm.stop()
 
 
 def status(cfg, vmlist):
@@ -177,27 +177,18 @@ def status(cfg, vmlist):
             VBox.force_stop(vm['uuid'])
 
 
-def status():
-    """Vms status
-    """
-    vms = VBox.list()
-    for vm in vms:
-        if re.search('^fregate', vm['name']):
-            logging.info("Founded {}".format(vm['name']))
-
-
-def services(action, service, vm):
-    """Services section
-    """
-    index = services.index(vm)
-    if action == 'add':
-        index[service].add()
-    if action == 'remove':
-        index[service].remove()
-    if action == 'clean':
-        index[service].clean()
-    if action == 'describe':
-        index[service].describe()
+# def services(action, service, vm):
+#     """Services section
+#     """
+#     index = services.index(vm)
+#     if action == 'add':
+#         index[service].add()
+#     if action == 'remove':
+#         index[service].remove()
+#     if action == 'clean':
+#         index[service].clean()
+#     if action == 'describe':
+#         index[service].describe()
 
 
 def kubectl(action):

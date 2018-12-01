@@ -48,7 +48,6 @@ def run(args, cfg, vmlist, network):
         commands.status(cfg, vmlist)
     elif args.action == "down":
         commands.down(cfg, vmlist)
-        commands.down()
     elif args.action == "services":
         if args.add:
             commands.services('add', args.add, vm)
