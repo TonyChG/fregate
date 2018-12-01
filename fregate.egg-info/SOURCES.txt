@@ -6,6 +6,8 @@ fregate.egg-info/SOURCES.txt
 fregate.egg-info/dependency_links.txt
 fregate.egg-info/requires.txt
 fregate.egg-info/top_level.txt
+lib/fregate/__init__.py
+lib/fregate/config.py
 lib/fregate/commands/__init__.py
 lib/fregate/commons/__init__.py
 lib/fregate/commons/errors.py

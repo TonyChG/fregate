@@ -4,8 +4,12 @@ tests_dev:
   stage: tests
   script:
     - echo "Testing fregate $(cat version.txt) $(date +%F\ %D)" >> /var/log/gitci.log
+    - virtualenv -p python3 venv
+    - source venv/bin/activate
     - pip3 install --user -e .
     - fregate -h
+    - deactivate
+    - rm -fr venv
   only:
     - dev
   tags:
