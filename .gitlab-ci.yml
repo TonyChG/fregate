@@ -1,0 +1,9 @@
+stages:
+  - tests
+  - deploy
+tests_dev:
+  stage: test
+  script:
+    - echo $(date) >> /var/log/gitci.log
+  only:
+    - dev
