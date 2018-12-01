@@ -15,17 +15,28 @@ import logging
 import atexit
 import lib.fregate.config as config
 import lib.fregate.commands as commands
-from lib.fregate.provider.vbox import VBox
-from lib.fregate.provider.network import HostNetwork
 
-
-vm_infos = {
-    "ip": "172.16.16.100",
-    "network": "172.16.16.1",
-    "netmask": "255.255.255.0",
-    "hostname": "fregate-001",
-    "box_url": "http://repository.dotfile.eu/fregate-base-v1.ova",
+network = {
+    "ip": "172.16.16.1",
+    "mask": "255.255.255.0"
 }
+
+vmlist = [
+    {
+        "ip": "172.16.16.100",
+        "network": "172.16.16.1",
+        "netmask": "255.255.255.0",
+        "hostname": "fregate-001",
+        "box_url": "http://repository.dotfile.eu/fregate-base-v1.ova",
+    },
+    {
+        "ip": "172.16.16.101",
+        "network": "172.16.16.1",
+        "netmask": "255.255.255.0",
+        "hostname": "fregate-002",
+        "box_url": "http://repository.dotfile.eu/fregate-base-v1.ova",
+    },
+]
 
 
 @atexit.register
@@ -38,24 +49,21 @@ def main():
     global logger
     global hostnetwork
 
+    hostnetwork = None
     logformat = '[%(levelname)-8s%(relativeCreated)8d]'\
         ' [%(name)s] %(message)15s'
     logging.basicConfig(level=logging.DEBUG, format=logformat)
     logger = logging.getLogger('fregate')
-    logger.info("Fregate {}".format('1.0'))
+    logger.debug("Fregate {}".format('1.0'))
     cfg = config.read()
-    vm_infos["config"] = cfg
     args = commands.parse_args()
-    vm = VBox(**vm_infos)
     if args.action == "up":
-        hostnetwork = HostNetwork(ip=vm_infos["network"],
-                                  mask=vm_infos["netmask"])
-        hostnetwork.create()
-        commands.up(vm, hostnetwork)
+        commands.up(cfg, vmlist, network)
     elif args.action == "clean":
         commands.clean()
     elif args.action == "ssh":
-        commands.ssh(vm)
+        commands.ssh(cfg, vmlist, args.vm_name)
+        sys.exit(0)
     elif args.action == "status":
         commands.status()
     elif args.action == "down":

@@ -9,17 +9,19 @@
 # =============================================================================
 
 
+from lib.fregate.provider.network import HostNetwork
 from lib.fregate.provider.vbox import VBox
 from lib.fregate.commons.shell import execute
 from argparse import ArgumentParser
 import logging
 import socket
 import time
-import signal
-import sys
+# import signal
+# import sys
 import re
 
-vms = []
+_vms = []
+_firstforward_port = 2222
 
 
 def parse_args():
@@ -31,30 +33,19 @@ def parse_args():
     up_parser.add_argument("-d, --daemon", action="store_true",
                            default=False)
     subparsers.add_parser('clean')
-    subparsers.add_parser('ssh')
+    ssh_parser = subparsers.add_parser('ssh')
+    ssh_parser.add_argument("vm_name")
     subparsers.add_parser('status')
     subparsers.add_parser('down')
     return parser.parse_args()
 
 
-def sigint_handler(signum, frame):
-    network = None
-    for vm in vms:
-        logging.info("Stop {}".format(vm.name))
-        vm.stop()
-        while vm.infos["VMState"] == "running":
-            time.sleep(1)
-            vm.getinfo()
-        network = vm.box_network
-    logging.info("Delete {}".format(vm.box_network.name))
-    network.delete()
-    for vm in vms:
-        vm.delete()
-    sys.exit(0)
-
-
-def ssh(vm, identity_file=None, user=None):
-    vm.ssh(identity_file=identity_file, user=user)
+def ssh(cfg, vmlist, vm_name):
+    for vm_info in vmlist:
+        vm_info["config"] = cfg
+        vm = VBox(**vm_info)
+        if vm.hostname == vm_name:
+            vm.ssh()
 
 
 def ssh_attempt(ip, port=22, privkey=".fregate.d/id_rsa", user="root"):
@@ -64,7 +55,6 @@ def ssh_attempt(ip, port=22, privkey=".fregate.d/id_rsa", user="root"):
         s.connect((ip, port))
         s.close()
     except (socket.timeout, socket.error):
-        logging.warning("Failed to connect to {}".format(ip))
         return False
     else:
         ssh_command = "ssh -q -i '{}' -o 'StrictHostKeyChecking=no'"\
@@ -75,44 +65,64 @@ def ssh_attempt(ip, port=22, privkey=".fregate.d/id_rsa", user="root"):
         return False
 
 
-def waiting_ssh(ip, port=22, user="root", privkey=".fregate.d/id_rsa"):
+def waiting_ssh(vm):
     trials = 0
     ssh_available = False
     while not ssh_available:
         if trials % 2 is 0:
-            logging.info("Waiting up of SSH")
-            ssh_available = ssh_attempt(ip, port=port,
-                                        user=user, privkey=privkey)
+            vm.logger.info("Waiting SSH connection ...")
+            ssh_available = ssh_attempt('127.0.0.1', port=vm.forwared_port,
+                                        user=vm.ssh_user,
+                                        privkey=vm.ssh_privkey)
         trials += 1
         if ssh_available is False:
             time.sleep(1)
 
 
-def up(vm, network, wait_port=22):
+def up(cfg, vmlist, network={}, wait_port=22):
     """ Start default test infra
     """
-    signal.signal(signal.SIGINT, sigint_handler)
-    # - Import base templates
-    # - Create Host only network
-    vm.import_box()
-    # Update host only network
-    network.attach(vm)
-    # Start the vm
-    vm.start()
-    # Host ssh config
-    host_ip = "127.0.0.1"
-    host_port = 2222
-    # Enable forwarding
-    vm.forward_ssh(host_ip=host_ip, host_port=2222)
-    # Wait for ssh to respond
-    waiting_ssh(host_ip, port=host_port, privkey=vm.ssh_privkey)
-    vm.launch_firstboot()
-    while True:
-        vm.getinfo()
-        logging.info("{} is running with address {}".format(vm.name, vm.ip))
-        vms.append(vm)
-        input("Ctrl+c to remove the infra\n")
+    # signal.signal(signal.SIGINT, sigint_handler)
+    hostnetwork = None
+    vm_count = 0
+    if network is not {}:
+        hostnetwork = HostNetwork(**network)
+        hostnetwork.create()
+    for vm_info in vmlist:
+        vm_info["config"] = cfg
+        vm = VBox(**vm_info)
+        # - Import base templates
+        # - Create Host only network
+        vm.import_box()
+        hostnetwork.attach(vm)
+        # Start the vm
+        vm.start()
+        # Host ssh config
+        host_ip = "127.0.0.1"
+        host_port = _firstforward_port + vm_count
+        # Enable forwarding
+        vm.forward_ssh(host_ip=host_ip, host_port=host_port)
+        # Wait for ssh to respond
+        waiting_ssh(vm)
+        vm.launch_firstboot()
+        vm_count += 1
+        _vms.append(vm)
+    _running = True
+    try:
+        while _running:
+            vm.getinfo()
+            logging.info("{} is running with address {}"
+                         .format(vm.name, vm.ip))
+            _vms.append(vm)
+            input("Ctrl+c to remove the infra\n")
+            _running = False
+    except KeyboardInterrupt:
+        pass
     print()
+    logging.info("Remove host network")
+    hostnetwork.delete()
+    down()
+    clean()
 
 
 def clean():
