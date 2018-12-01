@@ -16,6 +16,7 @@ import lib.fregate.config as config
 import lib.fregate.commands as commands
 import yaml
 
+
 @atexit.register
 def onexit():
     logger.info("Exiting ..")
@@ -36,6 +37,7 @@ def _setup_logging():
 def run(args, cfg, vmlist, network):
     """ Running correspondant command for action in command line
     """
+    print(args,cfg,vmlist,network)
     if args.action == "up":
         commands.up(cfg, vmlist, network, daemonize=args.daemonize)
     elif args.action == "clean":
@@ -47,15 +49,15 @@ def run(args, cfg, vmlist, network):
         commands.status(cfg, vmlist)
     elif args.action == "down":
         commands.down(cfg, vmlist)
-    elif args.action == "services":
-        if args.add:
-            commands.services('add', args.add, vm)
-        if args.remove:
-            commands.services('remove', args.remove, vm)
-        if args.clean:
-            commands.services('clean', args.clean, vm)
-        if args.describe:
-            commands.services('describe', args.describe, vm)
+    # elif args.action == "services":
+    #     if args.add:
+    #         commands.services('add', args.add, vm)
+    #     if args.remove:
+    #         commands.services('remove', args.remove, vm)
+    #     if args.clean:
+    #         commands.services('clean', args.clean, vm)
+    #     if args.describe:
+    #         commands.services('describe', args.describe, vm)
     return 0
 
 
@@ -64,6 +66,7 @@ def main():
     # Read config and command line
     cfg = config.read()
     args = commands.parse_args()
+    print(args)
     try:
         # Try to open default config file
         with open(args.configfile) as f:

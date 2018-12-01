@@ -1,7 +1,7 @@
 network:
   ip: 172.16.16.1
   mask: 255.255.255.0
-vms:
+nodes:
   - hostname: fregate-001
     ip: 172.16.16.100
     netmask: 255.255.255.0
