@@ -30,7 +30,7 @@ def main():
 
     hostnetwork = None
     logformat = '[%(levelname)-8s%(relativeCreated)8d]'\
-        ' [%(name)s] %(message)15s'
+        ' [%(name)s] %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=logformat)
     logger = logging.getLogger('fregate')
     logger.debug("Fregate {}".format('1.0'))

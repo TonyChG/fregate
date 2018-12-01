@@ -158,5 +158,10 @@ def down(cfg, vmlist):
 def status(cfg, vmlist):
     _get_vmlist(cfg, vmlist)
     for vm in _vms:
-        print(vm.name)
-        print(vm.getinfo())
+        vm.getinfo()
+        if vm.infos.get("VMState") == "running":
+            logging.info("-"*30)
+            logging.info("   {} is running".format(vm.name))
+            logging.info("   Hostname   : {}".format(vm.hostname))
+            logging.info("   Ip         : {}".format(vm.ip))
+            logging.info("   User       : {}".format(vm.ssh_user))
