@@ -8,12 +8,18 @@
 # =============================================================================
 
 
+import os
+import sys
 import re
 import logging
 import subprocess
+from urllib.parse import urlparse
+from urllib.request import urlopen
 from jinja2 import Template
 from lib.fregate.commons.utils import fatal
 from lib.fregate.commons.shell import execute
+
+BOX_FOLDER = "boxes"
 
 
 class VBox:
@@ -210,11 +216,37 @@ class VBox:
                         self.infos[splited_line[0]] = value
             return self.infos
 
+    def download_box(self):
+        try:
+            parsed_url = urlparse(self.box_url)
+            if parsed_url.scheme in ['http', 'https']:
+                self.logger.info("Downloading box : {}"
+                                 .format(parsed_url.geturl()))
+                with open(self.box_path, 'wb+') as f:
+                    self.logger.info(self.box_path)
+                    response = urlopen(parsed_url.geturl())
+                    data = response.read()      # a `bytes` object
+                    f.write(data)
+                    f.close()
+                sys.exit(0)
+        except Exception as e:
+            fatal("Failed to open {}".format(self.box_path), exception=e)
+        else:
+            self.logger.info("Download finished")
+
     def import_box(self):
         """ @params box_url box .ova url
             Import a .ova from url
         """
-        code, output = execute(["vboxmanage", "import", self.box_url],
+        parsed_url = urlparse(self.box_url)
+        if parsed_url.scheme in ['http', 'https']:
+            self.box_path = BOX_FOLDER + parsed_url.path
+        if os.stat(self.box_path) is None:
+            self.logger.info("{} doest not exists".format(self.box_path))
+            self.download_box()
+        else:
+            self.logger.info("Importing {}".format(self.box_path))
+        code, output = execute(["vboxmanage", "import", self.box_path],
                                stdout=True)
         if code is not 0:
             fatal("Failed to import {}".format(self.box_url))

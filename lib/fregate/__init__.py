@@ -30,16 +30,19 @@ vm_infos = {
 
 @atexit.register
 def onexit():
-    print("Exiting ..")
-    commands.clean()
+    logger.info("Exiting ..")
     sys.exit(0)
 
 
 def main():
+    global logger
+    global hostnetwork
+
     logformat = '[%(levelname)-8s%(relativeCreated)8d]'\
         ' [%(name)s] %(message)15s'
     logging.basicConfig(level=logging.DEBUG, format=logformat)
-    logging.info("Fregate {}".format('1.0'))
+    logger = logging.getLogger('fregate')
+    logger.info("Fregate {}".format('1.0'))
     cfg = config.read()
     vm_infos["config"] = cfg
     args = commands.parse_args()
@@ -65,5 +68,4 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         print("Cancel")
-        commands.clean()
-        sys.exit(1)
+        sys.exit(0)
