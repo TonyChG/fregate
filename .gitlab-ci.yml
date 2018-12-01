@@ -1,6 +1,7 @@
 stages:
   - tests
-tests_dev:
+  - deploy
+tests_stage:
   stage: tests
   script:
     - echo "$(date +%F\ %D) Testing fregate $(cat version.txt)" >> /var/log/gitci.log
@@ -12,6 +13,7 @@ tests_dev:
     - fregate -c tests/testinfra.yml clean
   only:
     - dev
+    - master
   tags:
     - tests
 deploy_master:
