@@ -255,13 +255,10 @@ class VBox:
         parsed_url = urlparse(self.box_url)
         if parsed_url.scheme in ['http', 'https']:
             self.box_path = BOX_FOLDER + parsed_url.path
-            try:
-                os.stat(self.box_path)
-            except Exception:
+            if not os.path.exists(self.box_path):
                 self.logger.info("{} doest not exists".format(self.box_path))
                 self.download_box()
-            finally:
-                self.logger.info("Importing {}".format(self.box_path))
+            self.logger.info("Importing {}".format(self.box_path))
         code, output = execute(["vboxmanage", "import", self.box_path],
                                stdout=True)
         if code is not 0:
