@@ -39,8 +39,8 @@ class Kubernetes(Service):
     def add(self):
         # rke = self.path + 'rke up'
         self.logger.info("Kubernetes is deploying ...")
-        code = follow(self.path +  "rke up", stdout=True,
-                      pattern='time=".+" ')
+        code = follow(self.bin_path +  "rke up --config {}".format(self.cfg),
+                      stdout=True, pattern='time=".+" ')
         if code is not 0:
             self.logger.warning("Kubernetes deployment failed")
         else:
@@ -54,7 +54,7 @@ class Kubernetes(Service):
 
     def remove(self):
         self.logger.info("Kubernetes is undeploying ...")
-        code = follow(self.path + 'rke remove --force', shell=True)
+        code = follow(self.bin_path + 'rke remove --force', shell=True)
         if code is 0:
             self.logger.info("Kubernetes removed .. OK")
             return code
