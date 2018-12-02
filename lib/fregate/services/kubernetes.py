@@ -19,15 +19,16 @@ import yaml
 
 from .service import Service
 
-CONFIGPATH = './cluster.yml'
 CACHEFOLDER = '.fregate.d/'
-RKEPATH = CACHEFOLDER + 'services/kubernetes/'
+RKEPATH = 'bin/'
 KUBECONFIG = CACHEFOLDER + 'kube_config.yml'
+RKECFG = CACHEFOLDER + 'services/kubernetes/cluster.yml'
 
 class Kubernetes(Service):
-    def __init__(self, vmlist=None, path=RKEPATH):
+    def __init__(self, vmlist=None, bin_path=RKEPATH, cfg=RKECFG):
         super().__init__(vmlist)
-        self.path = path
+        self.bin_path = bin_path
+        self.cfg = cfg
         self.description = '''
         Kubernetes service:
             this service will deploy a kubernetes cluster,
@@ -35,22 +36,16 @@ class Kubernetes(Service):
             '''
 
     def add(self):
-        rke = self.path + 'rke up'
+        rke = '{}rke up --config={}'.format(self.bin_path, self.cfg)
         logging.info("Kubernetes is deploying ...")
         #  code, output = execute(rke, wait=Trdocker volume prune --forceue, stdout=True, shell=True)
         call(rke, shell=True)
         #  rke add file in . so move it into .fregate.d
-        kubecfg_cmd = 'mv {} {}'.format('kube_config_cluster.yml', KUBECONFIG)
-        sleep(4)
-        code, output = execute(kubecfg_cmd, wait=True, stdout=True, shell=True)
-        if code != 0:
-            logging.critical("Add kubernetes conf failed {}: {}".format(code, output))
-            return False
         logging.info("Kubernetes .. OK")
         return True
 
     def remove(self):
-        rke = self.path + 'rke remove --force'
+        rke = '{}rke remove --force  --config={}'.format(self.bin_path, self.cfg)
         logging.info("Kubernetes is undeploying ...")
         call(rke, shell=True)
         logging.info("Kubernetes removed .. OK")
@@ -58,10 +53,10 @@ class Kubernetes(Service):
     def clean(self):
         self.remove()
         try:
-            with open(CONFIGPATH, 'r') as f:
+            with open(RKECFG, 'r') as f:
                 cfg = yaml.load(f.read())
         except Exception:
-            fatal("Failed to open {}".format(CONFIGPATH))
+            fatal("Failed to open {}".format(RKECFG))
         else:
             vms = cfg['nodes']
             for v in vms:

@@ -8,10 +8,12 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
+from __future__ import absolute_import
 from subprocess import call
+from .common import kubeconfig
 
 def kubectl(command):
-    kubeconfig = '.fregate.d/kube_config.yml'
+
     base_cmd = 'kubectl --kubeconfig={} '.format(kubeconfig)
     command = ' '.join(command)
     print(command)
