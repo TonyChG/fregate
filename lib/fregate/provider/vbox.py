@@ -7,7 +7,6 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-
 from __future__ import absolute_import
 import os
 import re
@@ -20,7 +19,6 @@ from fregate.commons.utils import fatal
 from fregate.commons.shell import execute
 
 BOX_FOLDER = "boxes"
-
 
 class VBox:
     @staticmethod

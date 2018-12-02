@@ -11,8 +11,9 @@
 # from utils import fatal
 import subprocess
 import logging
+
 def execute(commandline, stdout=False, wait=False, shell=False, debug=False):
-    returncode = -1
+    returncode = 0
     output = ""
     try:
         with subprocess.Popen(commandline,

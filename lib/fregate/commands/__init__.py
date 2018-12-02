@@ -12,7 +12,7 @@ from __future__ import absolute_import
 from fregate.provider.network import HostNetwork
 from fregate.provider.vbox import VBox
 from fregate.commons.shell import execute
-# from lib.fregate import services
+from fregate import services as svc
 from argparse import ArgumentParser
 import logging
 import socket
@@ -48,6 +48,9 @@ def parse_args():
     parser_srv.add_argument("--remove")
     parser_srv.add_argument("--clean")
     parser_srv.add_argument("--describe")
+    #  parser_srv = subparsers.add_parser('kubectl')
+    #  parser_srv.add_argument('command', metavar='N', type=str, nargs='*',
+    #  help='kubectl <command>')
     return parser.parse_args()
 
 
@@ -163,6 +166,8 @@ def down(cfg, vmlist):
 
 
 def status(cfg, vmlist):
+    print()
+    print(vmlist)
     _get_vmlist(cfg, vmlist)
     for vm in _vms:
         vm.getinfo()
@@ -173,19 +178,26 @@ def status(cfg, vmlist):
             logger.info("   Ip         : {}".format(vm.ip))
             logger.info("   User       : {}".format(vm.ssh_user))
 
-# def services(action, service, vm):
-#     """Services section
-#     """
-#     index = services.index(vm)
-#     if action == 'add':
-#         index[service].add()
-#     if action == 'remove':
-#         index[service].remove()
-#     if action == 'clean':
-#         index[service].clean()
-#     if action == 'describe':
-#         index[service].describe()
+
+def services(action, vmlist, service):
+    """Services section
+    """
+    index = svc.index(vmlist)
+    if action == 'add':
+        index[service].add()
+    if action == 'remove':
+        index[service].remove()
+    if action == 'clean':
+        index[service].clean()
+    if action == 'describe':
+        index[service].describe()
 
 
-def kubectl(action):
-    pass
+#  def kubectl(command):
+#      pass
+#      #  code, output = execute(final_cmd, wait=True, stdout=True, shell=True)
+#      #  print(output)
+#      #  if code is 0 and int(output[0]) is 0:
+#      #      return True
+#      #  return False
+#
