@@ -39,7 +39,7 @@ class Helm(Service):
         kubectl_cmds = [['-n', 'kube-system', 'create','sa', 'tiller'],
                         ['create', 'clusterrolebinding', 'tiller', '--clusterrole', 'cluster-admin', '--serviceaccount=kube-system:tiller']]
         for cmd in kubectl_cmds:
-        kubectl(cmd)
+            kubectl(cmd)
         # Init helm
         helm_cmds = [['init', '--skip-refresh', '--upgrade', '--service-account', 'tiller'],
                     ['repo', 'update']]

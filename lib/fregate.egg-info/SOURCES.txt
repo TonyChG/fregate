@@ -10,6 +10,7 @@ lib/fregate.egg-info/requires.txt
 lib/fregate.egg-info/top_level.txt
 lib/fregate/commands/__init__.py
 lib/fregate/commons/__init__.py
+lib/fregate/commons/common.py
 lib/fregate/commons/errors.py
 lib/fregate/commons/helm.py
 lib/fregate/commons/kubectl.py
