@@ -18,16 +18,17 @@ import yaml
 
 from .service import Service
 
-CONFIGPATH = './cluster.yml'
 CACHEFOLDER = '.fregate.d/'
 RKEPATH = '.fregate.d/bin/'
 KUBECONFIG = CACHEFOLDER + 'kube_config.yml'
+RKECFG = CACHEFOLDER + 'services/kubernetes/cluster.yml'
 
 
 class Kubernetes(Service):
-    def __init__(self, vmlist=None, path=RKEPATH):
+    def __init__(self, vmlist=None, bin_path=RKEPATH, cfg=RKECFG):
         super().__init__(vmlist)
-        self.path = path
+        self.bin_path = bin_path
+        self.cfg = cfg
         self.description = '''
         Kubernetes service:
             this service will deploy a kubernetes cluster,
@@ -63,10 +64,10 @@ class Kubernetes(Service):
     def clean(self):
         self.remove()
         try:
-            with open(CONFIGPATH, 'r') as f:
+            with open(RKECFG, 'r') as f:
                 cfg = yaml.load(f.read())
         except Exception:
-            fatal("Failed to open {}".format(CONFIGPATH))
+            fatal("Failed to open {}".format(RKECFG))
         else:
             vms = cfg['nodes']
             for v in vms:

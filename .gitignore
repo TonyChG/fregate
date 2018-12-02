@@ -10,3 +10,8 @@ k8s/bin
 *.tgz
 *.tar.gz
 *.rkestate
+*.rkestate
+rke
+kubectl
+helm
+
