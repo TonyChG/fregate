@@ -9,15 +9,16 @@
 # =============================================================================
 
 from __future__ import absolute_import
-from subprocess import call
+from fregate.commons.shell import execute, follow, logging
 from .common import kubeconfig
 from .common import binary
 
 
 def kubectl(command):
-
-    base_cmd = '{}kubectl --kubeconfig={} '.format(binary, kubeconfig)
-    command = ' '.join(command)
-    print(command)
-    final_cmd = base_cmd + command
-    call(final_cmd, shell=True)
+    logger = logging.getLogger("kubectl")
+    cmd = "{}kubectl --kubeconfig='{}' {}; ".format(binary, kubeconfig, command)
+    code = follow(cmd, stdout=True,
+                      pattern='time=".+" ')
+    if code is not 0:
+        logger.warning("rke command failed")
+    return code
