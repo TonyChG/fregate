@@ -49,13 +49,15 @@ def run(args, cfg, network, vmlist):
         commands.down(cfg, vmlist)
     elif args.action == "services":
         if args.add:
-           commands.services('add', args.add)
-        if args.remove:
-           commands.services('remove', args.remove)
-        if args.clean:
-           commands.services('clean', args.clean)
-        if args.describe:
-           commands.services('describe', args.describe)
+           commands.services('add', vmlist, args.add)
+        elif args.remove:
+           commands.services('remove', vmlist, args.remove)
+        elif args.clean:
+           commands.services('clean', vmlist, args.clean)
+        else:
+            commands.services('describe', vmlist, args.describe)
+    #  elif args.action == "kubectl":
+    #      commands.kubectl(args.command)
     return 0
 
 

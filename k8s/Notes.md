@@ -30,3 +30,8 @@ kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | gre
 ```
 curl http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/login
 \\\
+
+# Create certs
+kubectl create secret generic kubernetes-dashboard-certs --from-file=fregate.crt -n kube-system
+helm install stable/docker-registry --name docker-registry --namespace ingress-nginx --set=ingress.enabled=true,ingress.hosts[0]=fregate.local
+helm install --name my-release stable/grafana --name gra --namespace ingress-nginx --set=ingress.enabled=true,ingress.hosts[0]=fregate.local
