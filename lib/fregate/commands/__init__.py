@@ -12,7 +12,7 @@ from __future__ import absolute_import
 from fregate.provider.network import HostNetwork
 from fregate.provider.vbox import VBox
 from fregate.commons.shell import execute
-from fregate import services as svc
+from fregate import services as services
 from argparse import ArgumentParser
 import logging
 import socket
@@ -43,11 +43,15 @@ def parse_args():
     ssh_parser.add_argument("vm_name")
     subparsers.add_parser('status')
     subparsers.add_parser('down')
-    parser_srv = subparsers.add_parser('services')
-    parser_srv.add_argument("--add")
-    parser_srv.add_argument("--remove")
-    parser_srv.add_argument("--clean")
-    parser_srv.add_argument("--describe")
+    parser_srv = subparsers.add_parser('service')
+    parser_srv.add_argument("name",
+                            choices=["kubernetes", "helm", "dashboard"])
+    parser_srv.add_argument("state",
+                            choices=["up", "down", "clean"])
+    # parser_srv.add_argument("--add")
+    # parser_srv.add_argument("--remove")
+    # parser_srv.add_argument("--clean")
+    # parser_srv.add_argument("--describe")
     #  parser_srv = subparsers.add_parser('kubectl')
     #  parser_srv.add_argument('command', metavar='N', type=str, nargs='*',
     #  help='kubectl <command>')
@@ -166,8 +170,6 @@ def down(cfg, vmlist):
 
 
 def status(cfg, vmlist):
-    print()
-    print(vmlist)
     _get_vmlist(cfg, vmlist)
     for vm in _vms:
         vm.getinfo()
@@ -179,18 +181,17 @@ def status(cfg, vmlist):
             logger.info("   User       : {}".format(vm.ssh_user))
 
 
-def services(action, vmlist, service):
+def service_update(name, state, cfg={}, infra={}):
     """Services section
     """
-    index = svc.index(vmlist)
-    if action == 'add':
-        index[service].add()
-    if action == 'remove':
-        index[service].remove()
-    if action == 'clean':
-        index[service].clean()
-    if action == 'describe':
-        index[service].describe()
+    _get_vmlist(cfg, infra['nodes'])
+    code = services.run(name, state, _vms, infra=infra)
+    if code is not 0:
+        logger.warning("Failed to update state {} of service {}"
+                       .format(state, name))
+    else:
+        logger.info("{:>30} {}".format(name, state.upper()))
+    return code
 
 
 #  def kubectl(command):

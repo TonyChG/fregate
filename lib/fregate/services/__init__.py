@@ -14,14 +14,44 @@ from .kubernetes import Kubernetes
 from .helm import Helm
 from .dashboard import Dashboard
 from .docker_registry import Registry
+import yaml
 
 index = None
 
-# Services singletons
-def index(vmlist):
-    index = {'kubernetes': Kubernetes(vmlist),
-             'helm': Helm(vmlist),
-             'dashboard': Dashboard(),
-             'registry': Registry()}
-    return index
+
+def gen_rke_template(dest, vms, rke={}):
+    try:
+        with open(dest, "w") as f:
+            nodes = []
+            for vm in vms:
+                nodes.append({
+                    "address": vm.ip,
+                    "user": vm.ssh_user,
+                    "role": vm.role,
+                    "ssh_key_path": vm.ssh_privkey,
+                    "port": vm.ssh_port
+                })
+            yaml.dump(dict({
+                "nodes": nodes,
+            }, **rke), f, default_flow_style=False)
+            f.close()
+    except Exception as e:
+        logger.warning("Failed to create {}".format(dest))
+        return -1
+    else:
+        return dest
+
+
+def run(name, state, vms, infra={}):
+    if name == 'kubernetes':
+        tpl_path = gen_rke_template("/tmp/cluster.yml", vms,
+                                    rke=infra["rke"])
+        service = Kubernetes(cfg=tpl_path)
+        service.add()
+    # index = {'kubernetes': Kubernetes(vmlist),
+    #          'helm': Helm(vmlist),
+    #          'dashboard': Dashboard(),
+    #          'registry': Registry()}
+    # return index
+    pass
 
