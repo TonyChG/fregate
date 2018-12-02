@@ -38,7 +38,8 @@ class Kubernetes(Service):
     def add(self):
         # rke = self.path + 'rke up'
         self.logger.info("Kubernetes is deploying ...")
-        code = follow(self.path +  "rke up", stdout=True)
+        code = follow(self.path +  "rke up", stdout=True,
+                      pattern='time=".+" ')
         if code is not 0:
             self.logger.warning("Kubernetes deployment failed")
         else:

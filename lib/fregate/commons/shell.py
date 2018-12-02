@@ -13,11 +13,12 @@ import subprocess
 import logging
 from subprocess import PIPE, Popen
 import shlex
+import re
 
 logger = logging.getLogger("shell")
 
 
-def follow(self, cmdline, stdout=True):
+def follow(cmdline, stdout=True, pattern=None):
     logger.debug('Launch {}'.format(cmdline))
     return_code = -1
     try:
@@ -25,7 +26,10 @@ def follow(self, cmdline, stdout=True):
         while True:
             output = process.stdout.readline()
             if output and stdout:
-                logger.info(output.decode('utf-8').strip())
+                stripline = output.decode('utf-8').strip()
+                if pattern is not None:
+                    stripline = re.sub(pattern, "", stripline)
+                logger.info(stripline)
             if process.poll() is not None:
                 break
         return_code = process.poll()

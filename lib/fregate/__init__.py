@@ -16,6 +16,9 @@ import fregate.config as config
 import fregate.commands as commands
 import yaml
 
+__version__ = "0.0.1"
+
+
 @atexit.register
 def onexit():
     logger.info("Exiting ..")
@@ -30,7 +33,7 @@ def _setup_logging():
     logging.basicConfig(level=logging.DEBUG, format=logformat)
     logger = logging.getLogger('fregate')
     logger.debug("-"*30)
-    logger.debug("         Fregate {}".format('1.0'))
+    logger.debug("         Fregate {}".format(__version__))
 
 
 def run(args, cfg, network, vmlist):
@@ -49,11 +52,11 @@ def run(args, cfg, network, vmlist):
         commands.down(cfg, vmlist)
     elif args.action == "services":
         if args.add:
-           commands.services('add', vmlist, args.add)
+            commands.services('add', vmlist, args.add)
         elif args.remove:
-           commands.services('remove', vmlist, args.remove)
+            commands.services('remove', vmlist, args.remove)
         elif args.clean:
-           commands.services('clean', vmlist, args.clean)
+            commands.services('clean', vmlist, args.clean)
         else:
             commands.services('describe', vmlist, args.describe)
     #  elif args.action == "kubectl":
