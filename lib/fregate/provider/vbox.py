@@ -20,6 +20,7 @@ from fregate.commons.shell import execute
 
 BOX_FOLDER = "boxes"
 
+
 class VBox:
     @staticmethod
     def list():
@@ -66,9 +67,10 @@ class VBox:
             logging.debug("VM {} is removed".format(id))
         return 0
 
-    def __init__(self, id=None, box_url=None, ip=None, network=None,
+    def __init__(self, id=None, box=None, ip=None, network=None,
                  netmask=None, hostname=None, config={}, role=[]):
-        self.box_url = box_url
+        self.box_repository = config["repository"]
+        self.box_url = self.box_repository + "/" + box
         self.hostname = hostname
         self.id = id
         self.ip = ip
@@ -82,6 +84,7 @@ class VBox:
         self.ssh_user = config["ssh"]["user"]
         self.ssh_port = config["ssh"]["port"]
         self.logger = logging.getLogger(name=self.hostname)
+        self.role = role
 
     def get_sshcmd(self, forwarding=False, scp=False, target=None, dest=None):
         """ The getter for the ssh shell command line with all required params

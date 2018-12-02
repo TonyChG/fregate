@@ -11,6 +11,7 @@
 from __future__ import absolute_import
 from fregate.commons.shell import execute, follow
 from fregate.commons.shell import logging
+from fregate.commons.rke import rke
 from fregate.commons.utils import fatal
 from fregate.provider.vbox import VBox
 from time import sleep
@@ -39,26 +40,12 @@ class Kubernetes(Service):
     def add(self):
         # rke = self.path + 'rke up'
         self.logger.info("Kubernetes is deploying ...")
-        code = follow(self.path +  "rke up", stdout=True)
-        if code is not 0:
-            self.logger.warning("Kubernetes deployment failed")
-        else:
-            kubecfg_cmd = 'mv {} {}'.format('kube_config_cluster.yml', KUBECONFIG)
-            code, output = execute(kubecfg_cmd, wait=True, stdout=True, shell=True)
-            if code != 0:
-                self.logger.critical("Add kubernetes conf failed {}: {}".format(code, output))
-                return code
-            self.logger.info("Kubernetes .. OK")
-        return code
+        rke('up')
+        self.logger.info("Kubernetes .. OK")
 
     def remove(self):
         self.logger.info("Kubernetes is undeploying ...")
-        code = follow(self.path + 'rke remove --force', shell=True)
-        if code is 0:
-            self.logger.info("Kubernetes removed .. OK")
-            return code
-        else:
-            self.logger.warning("Failed to remove kubernetes")
+        rke('remove --force')
 
     def clean(self):
         self.remove()
