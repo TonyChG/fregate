@@ -1,14 +1,23 @@
 network:
   ip: 172.16.16.1
   mask: 255.255.255.0
+rke:
+  ignore_docker_version: false
+  kubernetes_version: v1.12.2
 nodes:
   - hostname: fregate01
     ip: 172.16.16.101
     netmask: 255.255.255.0
     network: 172.16.16.1
     box: fregate-base-v1.ova
+    role:
+      - etcd
+      - controlplane
+      - worker
   - hostname: fregate02
     ip: 172.16.16.102
     netmask: 255.255.255.0
     network: 172.16.16.1
     box: fregate-base-v1.ova
+    role:
+      - worker
