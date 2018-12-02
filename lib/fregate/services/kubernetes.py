@@ -21,7 +21,7 @@ from .service import Service
 
 CONFIGPATH = './cluster.yml'
 CACHEFOLDER = '.fregate.d/'
-RKEPATH = 'bin/'
+RKEPATH = '.fregate.d/bin/'
 KUBECONFIG = CACHEFOLDER + 'kube_config.yml'
 
 
