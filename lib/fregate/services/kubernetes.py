@@ -9,11 +9,10 @@
 # =============================================================================
 
 from __future__ import absolute_import
-from fregate.commons.shell import execute
+from fregate.commons.shell import execute, follow
 from fregate.commons.shell import logging
 from fregate.commons.utils import fatal
 from fregate.provider.vbox import VBox
-from subprocess import call
 from time import sleep
 import yaml
 
@@ -34,27 +33,31 @@ class Kubernetes(Service):
             this service will deploy a kubernetes cluster,
             using the `cluster.yaml` fil.
             '''
+        self.logger = logging.getLogger("kubernetes")
 
     def add(self):
-        rke = self.path + 'rke up'
-        logging.info("Kubernetes is deploying ...")
-        #  code, output = execute(rke, wait=Trdocker volume prune --forceue, stdout=True, shell=True)
-        call(rke, shell=True)
-        #  rke add file in . so move it into .fregate.d
-        kubecfg_cmd = 'mv {} {}'.format('kube_config_cluster.yml', KUBECONFIG)
-        sleep(4)
-        code, output = execute(kubecfg_cmd, wait=True, stdout=True, shell=True)
-        if code != 0:
-            logging.critical("Add kubernetes conf failed {}: {}".format(code, output))
-            return False
-        logging.info("Kubernetes .. OK")
-        return True
+        # rke = self.path + 'rke up'
+        self.logger.info("Kubernetes is deploying ...")
+        code = follow(self.path +  "rke up", stdout=True)
+        if code is not 0:
+            self.logger.warning("Kubernetes deployment failed")
+        else:
+            kubecfg_cmd = 'mv {} {}'.format('kube_config_cluster.yml', KUBECONFIG)
+            code, output = execute(kubecfg_cmd, wait=True, stdout=True, shell=True)
+            if code != 0:
+                self.logger.critical("Add kubernetes conf failed {}: {}".format(code, output))
+                return code
+            self.logger.info("Kubernetes .. OK")
+        return code
 
     def remove(self):
-        rke = self.path + 'rke remove --force'
-        logging.info("Kubernetes is undeploying ...")
-        call(rke, shell=True)
-        logging.info("Kubernetes removed .. OK")
+        self.logger.info("Kubernetes is undeploying ...")
+        code = follow(self.path + 'rke remove --force', shell=True)
+        if code is 0:
+            self.logger.info("Kubernetes removed .. OK")
+            return code
+        else:
+            self.logger.warning("Failed to remove kubernetes")
 
     def clean(self):
         self.remove()
@@ -78,8 +81,8 @@ class Kubernetes(Service):
             kubecfg_cmd = 'rm {}'.format(KUBECONFIG)
             code, output = execute(kubecfg_cmd, stdout=True)
             if code != 0:
-                logging.critical("Clean kubeconfing failed {}: {}".format(code, output))
-            logging.info("Kubernetes cleaned")
+                self.logger.critical("Clean kubeconfing failed {}: {}".format(code, output))
+            self.logger.info("Kubernetes cleaned")
             return True
 
     def describe(self):
