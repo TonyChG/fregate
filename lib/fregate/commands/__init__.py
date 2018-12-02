@@ -48,13 +48,6 @@ def parse_args():
                             choices=["kubernetes", "helm", "dashboard"])
     parser_srv.add_argument("state",
                             choices=["up", "down", "clean"])
-    # parser_srv.add_argument("--add")
-    # parser_srv.add_argument("--remove")
-    # parser_srv.add_argument("--clean")
-    # parser_srv.add_argument("--describe")
-    #  parser_srv = subparsers.add_parser('kubectl')
-    #  parser_srv.add_argument('command', metavar='N', type=str, nargs='*',
-    #  help='kubectl <command>')
     return parser.parse_args()
 
 

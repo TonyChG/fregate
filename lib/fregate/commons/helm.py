@@ -8,14 +8,16 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-from subprocess import call
+from __future__ import absolute_import
+from fregate.commons.shell import execute, follow, logging
 from .common import kubeconfig
+from .common import binary
 
-def helm(commands):
-    cmd = ""
-    for command in commands:
-        command = ' '.join(command)
-        cmd += "bin/helm --kubeconfig='{}' {}; ".format(kubeconfig, command)
-    print(cmd)
-    call(cmd, shell=True)
-
+def helm(command):
+    logger = logging.getLogger("helm")
+    cmd = "{}helm --kubeconfig='{}' {}; ".format(binary, kubeconfig, command)
+    code = follow(cmd, stdout=True,
+                      pattern='time=".+" ')
+    if code is not 0:
+        logger.warning("rke command failed")
+    return code

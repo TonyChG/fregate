@@ -9,3 +9,5 @@
 # =============================================================================
 
 kubeconfig = '.fregate.d/services/kubernetes/kube_config_cluster.yml'
+binary = '.fregate.d/bin/'
+rke_cluster = '.fregate.d/services/kubernetes/cluster.yml'

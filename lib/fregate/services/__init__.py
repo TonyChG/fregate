@@ -10,13 +10,11 @@
 
 
 from __future__ import absolute_import
-from .kubernetes import Kubernetes
-from .helm import Helm
-from .dashboard import Dashboard
-from .docker_registry import Registry
 import yaml
+import logging
+from . import kubernetes
 
-index = None
+logger = logging.getLogger("service")
 
 
 def gen_rke_template(dest, vms, rke={}):
@@ -35,7 +33,7 @@ def gen_rke_template(dest, vms, rke={}):
                 "nodes": nodes,
             }, **rke), f, default_flow_style=False)
             f.close()
-    except Exception as e:
+    except Exception:
         logger.warning("Failed to create {}".format(dest))
         return -1
     else:
@@ -44,14 +42,12 @@ def gen_rke_template(dest, vms, rke={}):
 
 def run(name, state, vms, infra={}):
     if name == 'kubernetes':
-        tpl_path = gen_rke_template("/tmp/cluster.yml", vms,
-                                    rke=infra["rke"])
-        service = Kubernetes(cfg=tpl_path)
-        service.add()
+        cfg = gen_rke_template("/tmp/cluster.yml", vms,
+                               rke=infra["rke"])
+        kubernetes.up(cfg)
     # index = {'kubernetes': Kubernetes(vmlist),
     #          'helm': Helm(vmlist),
     #          'dashboard': Dashboard(),
     #          'registry': Registry()}
     # return index
     pass
-

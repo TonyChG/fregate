@@ -21,7 +21,7 @@ __version__ = "0.0.1"
 
 @atexit.register
 def onexit():
-    logger.info("Exiting ..")
+    logging.info("Exiting ..")
     sys.exit(0)
 
 
