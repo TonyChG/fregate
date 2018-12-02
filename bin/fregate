@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from lib.fregate import main
+from __future__ import absolute_import
+from fregate import main
 
 if __name__ == '__main__':
     main()

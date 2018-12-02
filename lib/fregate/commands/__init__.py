@@ -8,9 +8,10 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-from lib.fregate.provider.network import HostNetwork
-from lib.fregate.provider.vbox import VBox
-from lib.fregate.commons.shell import execute
+from __future__ import absolute_import
+from fregate.provider.network import HostNetwork
+from fregate.provider.vbox import VBox
+from fregate.commons.shell import execute
 # from lib.fregate import services
 from argparse import ArgumentParser
 import logging

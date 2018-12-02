@@ -23,10 +23,11 @@ setup(
     scripts=[
         "bin/fregate"
     ],
+    package_dir={'': 'lib'},
     author='Antoine CHINY',
     author_email='antoine.chiny@inria.fr',
     url='https://gitlab.dotfile.eu/tonychg/fregate',
-    packages=find_packages(),
+    packages=find_packages('lib'),
     install_requires=[
         "pyyaml",
         "jinja2"

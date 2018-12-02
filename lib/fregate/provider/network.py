@@ -11,10 +11,13 @@
 # =============================================================================
 
 
+from __future__ import absolute_import
+
 import re
 import logging
-from lib.fregate.commons.shell import execute
-from lib.fregate.commons.utils import fatal
+
+from fregate.commons.shell import execute
+from fregate.commons.utils import fatal
 
 
 class HostNetwork:
