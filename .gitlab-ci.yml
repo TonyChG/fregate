@@ -15,7 +15,7 @@ tests_dev:
     - dev
   tags:
     - tests
-deploy_master:
+deploy_dev:
   stage: deploy
   script:
     - echo "$(date +%F\ %D) Deploying fregate-dev pip package" >> /var/log/gitci.log
