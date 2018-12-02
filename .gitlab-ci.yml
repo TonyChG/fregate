@@ -13,8 +13,8 @@ tests_dev:
     - bash scripts/get_bin.sh
     - fregate -h
     - fregate -c tests/testinfra.yml up -d
-    - fregate -c tests/testinfra.yml services kubernetes up
-    - fregate -c tests/testinfra.yml services kubernetes down
+    - fregate -c tests/testinfra.yml services kubernete up
+    # - fregate -c tests/testinfra.yml services kubernete down
     - fregate -c tests/testinfra.yml down
     - fregate -c tests/testinfra.yml clean
   only:
