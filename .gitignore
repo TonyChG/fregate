@@ -7,4 +7,9 @@ __pycache__
 venv/
 k8s/bin
 *.ova
+*.tgz
+*.tar.gz
 .fregate.d/services/kubernetes/rke
+helm
+kubectl
+rke

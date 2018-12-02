@@ -7,6 +7,8 @@ tests_dev:
     - echo "$(date +%F\ %D) Testing fregate $(cat version.txt)" >> /var/log/gitci.log
     - chmod 600 .fregate.d/id_rsa
     - pip3 install --user -e .
+    - echo "Testing this fregate infra"
+    - cat tests/testinfra.yml
     - fregate -h
     - fregate -c tests/testinfra.yml up -d
     - fregate -c tests/testinfra.yml down
@@ -15,6 +17,24 @@ tests_dev:
     - dev
   tags:
     - tests
+deploy_dev:
+  stage: deploy
+  script:
+    - echo "$(date +%F\ %D) Deploying fregate-dev pip package" >> /var/log/gitci.log
+    - sudo /usr/local/scripts/push_package.sh "fregate-dev.tar.gz"
+  only:
+    - dev
+  tags:
+    - deploy
+test_deploy_dev:
+  stage: deploy
+  script:
+    - pip install -U --user http://pypi.dotfile.eu/fregate/fregate-dev.tar.gz
+    - /home/gitlab-runner/.local/bin/fregate -h
+  only:
+    - dev
+  tags:
+    - deploy
 tests_master:
   stage: tests
   script:
@@ -33,8 +53,16 @@ deploy_master:
   stage: deploy
   script:
     - echo "$(date +%F\ %D) Deploying fregate-$(cat version.txt) as pip package" >> /var/log/gitci.log
-    - tar --exclude .gitlab-ci.yml --exclude .git --exclude boxes -cvz -f "fregate-$(cat version.txt).tar.gz" .
     - sudo /usr/local/scripts/push_package.sh "fregate-$(cat version.txt).tar.gz"
+  only:
+    - master
+  tags:
+    - deploy
+test_deploy_master:
+  stage: deploy
+  script:
+    - pip install -U --user http://pypi.dotfile.eu/fregate/fregate-$(cat version.txt).tar.gz
+    - /home/gitlab-runner/.local/bin/fregate -h
   only:
     - master
   tags:

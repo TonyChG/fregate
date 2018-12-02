@@ -7,6 +7,7 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
+from __future__ import absolute_import
 import os
 import re
 import logging

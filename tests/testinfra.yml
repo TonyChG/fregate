@@ -12,8 +12,3 @@ nodes:
     netmask: 255.255.255.0
     network: 172.16.16.1
     box_url: http://repository.dotfile.eu/fregate-base-v1.ova
-  - hostname: fregate03
-    ip: 172.16.16.103
-    netmask: 255.255.255.0
-    network: 172.16.16.1
-    box_url: http://repository.dotfile.eu/fregate-base-v1.ova
