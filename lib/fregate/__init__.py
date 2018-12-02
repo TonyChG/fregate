@@ -12,8 +12,8 @@
 import sys
 import logging
 import atexit
-import lib.fregate.config as config
-import lib.fregate.commands as commands
+import fregate.config as config
+import fregate.commands as commands
 import yaml
 
 

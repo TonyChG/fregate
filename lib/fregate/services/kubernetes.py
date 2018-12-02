@@ -9,8 +9,8 @@
 # =============================================================================
 
 from __future__ import absolute_import
-from lib.fregate.commons.shell import execute
-from lib.fregate.commons.shell import logging
+from fregate.commons.shell import execute
+from fregate.commons.shell import logging
 
 from .service import Service
 
