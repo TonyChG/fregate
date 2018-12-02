@@ -9,10 +9,10 @@
 # =============================================================================
 
 from __future__ import absolute_import
-from lib.fregate.commons.shell import execute
-from lib.fregate.commons.shell import logging
-from lib.fregate.commons.utils import fatal
-from lib.fregate.provider.vbox import VBox
+from fregate.commons.shell import execute
+from fregate.commons.shell import logging
+from fregate.commons.utils import fatal
+from fregate.provider.vbox import VBox
 from subprocess import call
 from time import sleep
 import yaml
@@ -20,9 +20,10 @@ import yaml
 from .service import Service
 
 CACHEFOLDER = '.fregate.d/'
-RKEPATH = 'bin/'
+RKEPATH = '.fregate.d/bin/'
 KUBECONFIG = CACHEFOLDER + 'kube_config.yml'
 RKECFG = CACHEFOLDER + 'services/kubernetes/cluster.yml'
+
 
 class Kubernetes(Service):
     def __init__(self, vmlist=None, bin_path=RKEPATH, cfg=RKECFG):

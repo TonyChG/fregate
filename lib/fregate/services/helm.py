@@ -9,12 +9,13 @@
 # =============================================================================
 
 from __future__ import absolute_import
-from lib.fregate.commons.shell import execute
-from lib.fregate.commons.shell import logging
-from lib.fregate.commons.utils import fatal
-from lib.fregate.commons.kubectl import kubectl
-from lib.fregate.commons.helm import helm
-from lib.fregate.provider.vbox import VBox
+from fregate.commons.shell import execute
+from fregate.commons.shell import logging
+from fregate.commons.utils import fatal
+from fregate.commons.kubectl import kubectl
+from fregate.commons.helm import helm
+from fregate.provider.vbox import VBox
+import yaml
 
 from .service import Service
 
@@ -38,7 +39,7 @@ class Helm(Service):
         kubectl_cmds = [['-n', 'kube-system', 'create','sa', 'tiller'],
                         ['create', 'clusterrolebinding', 'tiller', '--clusterrole', 'cluster-admin', '--serviceaccount=kube-system:tiller']]
         for cmd in kubectl_cmds:
-            kubectl(cmd)
+        kubectl(cmd)
         # Init helm
         helm_cmds = [['init', '--skip-refresh', '--upgrade', '--service-account', 'tiller'],
                     ['repo', 'update']]

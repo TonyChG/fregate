@@ -9,11 +9,10 @@
 # =============================================================================
 
 from __future__ import absolute_import
-from lib.fregate.provider.network import HostNetwork
-from lib.fregate.provider.vbox import VBox
-from lib.fregate.commons.shell import execute
-from lib.fregate import services as svc
-from subprocess import call
+from fregate.provider.network import HostNetwork
+from fregate.provider.vbox import VBox
+from fregate.commons.shell import execute
+from fregate import services as svc
 from argparse import ArgumentParser
 import logging
 import socket
@@ -51,7 +50,7 @@ def parse_args():
     parser_srv.add_argument("--describe")
     #  parser_srv = subparsers.add_parser('kubectl')
     #  parser_srv.add_argument('command', metavar='N', type=str, nargs='*',
-                            #  help='kubectl <command>')
+    #  help='kubectl <command>')
     return parser.parse_args()
 
 
@@ -181,17 +180,17 @@ def status(cfg, vmlist):
 
 
 def services(action, vmlist, service):
-   """Services section
-   """
-   index = svc.index(vmlist)
-   if action == 'add':
-       index[service].add()
-   if action == 'remove':
-       index[service].remove()
-   if action == 'clean':
-       index[service].clean()
-   if action == 'describe':
-       index[service].describe()
+    """Services section
+    """
+    index = svc.index(vmlist)
+    if action == 'add':
+        index[service].add()
+    if action == 'remove':
+        index[service].remove()
+    if action == 'clean':
+        index[service].clean()
+    if action == 'describe':
+        index[service].describe()
 
 
 #  def kubectl(command):

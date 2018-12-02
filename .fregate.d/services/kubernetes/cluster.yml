@@ -1,5 +1,5 @@
 nodes:
-    - address: 172.16.16.100
+    - address: 172.16.16.101
       user: root
       role:
         - controlplane
@@ -7,7 +7,7 @@ nodes:
         - worker
       ssh_key_path: .fregate.d/id_rsa
       port: 22
-    - address: 172.16.16.101
+    - address: 172.16.16.102
       user: root
       role:
         - worker

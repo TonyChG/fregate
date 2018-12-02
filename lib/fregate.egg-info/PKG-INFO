@@ -1,0 +1,17 @@
+Metadata-Version: 1.2
+Name: fregate
+Version: 1.0
+Summary: Multi nodes - Kubernetes Cluster CLI
+Home-page: https://gitlab.dotfile.eu/tonychg/fregate
+Author: Antoine CHINY
+Author-email: antoine.chiny@inria.fr
+License: UNKNOWN
+Description: 
+        fregate help you to install kubernetes with all fancy services
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: License :: Other/Proprietary License
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.7

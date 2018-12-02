@@ -10,7 +10,7 @@
 
 
 import yaml
-from lib.fregate.commons.utils import fatal
+from fregate.commons.utils import fatal
 
 
 def read(configpath='fregate.yml'):

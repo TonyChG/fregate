@@ -15,8 +15,8 @@ import subprocess
 from urllib.parse import urlparse
 from urllib.request import urlopen
 from jinja2 import Template
-from lib.fregate.commons.utils import fatal
-from lib.fregate.commons.shell import execute
+from fregate.commons.utils import fatal
+from fregate.commons.shell import execute
 
 BOX_FOLDER = "boxes"
 

@@ -12,6 +12,7 @@ from __future__ import absolute_import
 from subprocess import call
 from .common import kubeconfig
 
+
 def kubectl(command):
 
     base_cmd = 'kubectl --kubeconfig={} '.format(kubeconfig)
@@ -19,4 +20,3 @@ def kubectl(command):
     print(command)
     final_cmd = base_cmd + command
     call(final_cmd, shell=True)
-
