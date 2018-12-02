@@ -178,6 +178,10 @@ def service_update(name, state, cfg={}, infra={}):
     """Services section
     """
     _get_vmlist(cfg, infra['nodes'])
+    if infra.get("system_images") is not None \
+            and type(infra["system_images"]) is list:
+        for image in infra["system_images"]:
+            print(image)
     code = services.run(name, state, _vms, infra=infra)
     if code is not 0:
         logger.warning("Failed to update state {} of service {}"

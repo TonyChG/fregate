@@ -41,13 +41,15 @@ def gen_rke_template(dest, vms, rke={}):
 
 
 def run(name, state, vms, infra={}):
+    code = -1
     if name == 'kubernetes':
         cfg = gen_rke_template("/tmp/cluster.yml", vms,
                                rke=infra["rke"])
-        kubernetes.up(cfg)
+        if state == 'up':
+            code = kubernetes.up(cfg)
     # index = {'kubernetes': Kubernetes(vmlist),
     #          'helm': Helm(vmlist),
     #          'dashboard': Dashboard(),
     #          'registry': Registry()}
     # return index
-    pass
+    return code
