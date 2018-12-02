@@ -10,12 +10,13 @@
 
 from subprocess import call
 from .common import kubeconfig
+from .common import binary
 
 def helm(commands):
     cmd = ""
     for command in commands:
         command = ' '.join(command)
-        cmd += "bin/helm --kubeconfig='{}' {}; ".format(kubeconfig, command)
+        cmd += "{}helm --kubeconfig='{}' {}; ".format(binary, kubeconfig, command)
     print(cmd)
     call(cmd, shell=True)
 

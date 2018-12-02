@@ -11,6 +11,32 @@
 # from utils import fatal
 import subprocess
 import logging
+from subprocess import PIPE, Popen
+import shlex
+
+logger = logging.getLogger("shell")
+
+
+def follow(self, cmdline, stdout=True):
+    logger.debug('Launch {}'.format(cmdline))
+    return_code = -1
+    try:
+        process = Popen(shlex.split(cmdline), stdout=PIPE)
+        while True:
+            output = process.stdout.readline()
+            if output and stdout:
+                logger.info(output.decode('utf-8').strip())
+            if process.poll() is not None:
+                break
+        return_code = process.poll()
+        logger.debug('Command terminate with status {}'
+                     .format(return_code))
+    except OSError as e:
+        logger.warning(e)
+        logger.warning('Command failed')
+    finally:
+        return return_code
+
 
 def execute(commandline, stdout=False, wait=False, shell=False, debug=False):
     returncode = 0

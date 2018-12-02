@@ -9,8 +9,11 @@ tests_dev:
     - pip3 install --user -e .
     - echo "Testing this fregate infra"
     - cat tests/testinfra.yml
+    - echo "Download binaries"
+    - bash scripts/get_bin.sh
     - fregate -h
     - fregate -c tests/testinfra.yml up -d
+    - fregate -c tests/testinfra.yml services --add kubernetes
     - fregate -c tests/testinfra.yml down
     - fregate -c tests/testinfra.yml clean
   only:

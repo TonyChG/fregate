@@ -11,11 +11,12 @@
 from __future__ import absolute_import
 from subprocess import call
 from .common import kubeconfig
+from .common import binary
 
 
 def kubectl(command):
 
-    base_cmd = 'kubectl --kubeconfig={} '.format(kubeconfig)
+    base_cmd = '{}kubectl --kubeconfig={} '.format(binary, kubeconfig)
     command = ' '.join(command)
     print(command)
     final_cmd = base_cmd + command

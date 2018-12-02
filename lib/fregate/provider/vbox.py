@@ -67,7 +67,7 @@ class VBox:
         return 0
 
     def __init__(self, id=None, box_url=None, ip=None, network=None,
-                 netmask=None, hostname=None, config={}):
+                 netmask=None, hostname=None, config={}, role=[]):
         self.box_url = box_url
         self.hostname = hostname
         self.id = id
