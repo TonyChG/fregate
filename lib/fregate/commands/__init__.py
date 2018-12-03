@@ -121,6 +121,8 @@ def image_caching(images):
                 if code is not 0:
                     logger.warning("Failed to save {}.tar.gz".format(img))
                     sys.exit(1)
+                else:
+                    logger.info("Imported image {}".format(img_path))
         else:
             logger.info("Found cached image {}".format(img_path))
             cached_images.append(img_path)
