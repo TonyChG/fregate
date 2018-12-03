@@ -107,7 +107,9 @@ def image_caching(images):
     for img in images:
         tag = images[img]
         img_path = "images/{}.tar.gz".format(tag.replace("/", "."))
-        if os.stat(img_path) is None:
+        try:
+            os.stat(img_path)
+        except Exception:
             code, output = execute(["docker", "pull", tag], stdout=True)
             if code is not 0:
                 logger.warning("Failed to cached {}".format(tag))
