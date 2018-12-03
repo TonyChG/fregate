@@ -14,6 +14,7 @@ import logging
 import atexit
 import fregate.config as config
 import fregate.commands as commands
+from fregate.commons.kubectl import kubectl
 import yaml
 
 __version__ = "0.0.1"
@@ -36,12 +37,16 @@ def _setup_logging():
     logger.debug("         Fregate {}".format(__version__))
 
 
+def execute_binary(args):
+    kubectl((" ".join(args[1:])))
+
+
 def run(args, cfg, infra):
     """ Running correspondant command for action in command line
     """
     if args.action == "up":
-        commands.up(cfg, infra["nodes"], infra["network"],
-                    daemonize=args.daemonize)
+        commands.up(cfg, infra, daemonize=args.daemonize,
+                    cached=args.cached)
     elif args.action == "clean":
         commands.clean(network=infra["network"])
     elif args.action == "ssh":
@@ -57,16 +62,6 @@ def run(args, cfg, infra):
         commands.service_update(service_name,
                                 service_state,
                                 cfg=cfg, infra=infra)
-        # if args.add:
-        #     commands.services('add', vmlist, args.add)
-        # elif args.remove:
-        #     commands.services('remove', vmlist, args.remove)
-        # elif args.clean:
-        #     commands.services('clean', vmlist, args.clean)
-        # else:
-        #     commands.services('describe', vmlist, args.describe)
-    #  elif args.action == "kubectl":
-    #      commands.kubectl(args.command)
     return 0
 
 
@@ -75,6 +70,8 @@ def main():
     # Read config and command line
     cfg = config.read()
     args = commands.parse_args()
+    if type(args) is list:
+        return execute_binary(args)
     try:
         # Try to open default config file
         with open(args.configfile) as f:

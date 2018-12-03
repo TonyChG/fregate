@@ -107,7 +107,6 @@ class VBox:
         ssh_port = "-P" if scp else "-p"
 
         if forwarding:
-            self.logger.debug("Connect to ssh with forwarding")
             ssh_ip = "127.0.0.1"
             ssh_port += " {}".format(self.forwared_port)
         else:
