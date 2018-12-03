@@ -126,6 +126,7 @@ def image_caching(images):
 
 
 def push_cached_images(vm, cached_images):
+    code = 0
     for img_path in cached_images:
         scpcmd = vm.get_sshcmd(forwarding=True, scp=True,
                                target=img_path,

@@ -12,8 +12,10 @@ tests_dev:
     - echo "Download binaries"
     - bash scripts/get_bin.sh
     - fregate -h
-    - fregate -c tests/testinfra.yml up -d
+    - fregate -c tests/testinfra.yml up -d --cached
     - fregate -c tests/testinfra.yml service kubernetes up
+    - fregate kubectl get nodes
+    - fregate kubectl get all --all-namespaces
     # - fregate -c tests/testinfra.yml services kubernetes down
     - fregate -c tests/testinfra.yml down
     - fregate -c tests/testinfra.yml clean
@@ -46,7 +48,10 @@ tests_master:
     - chmod 600 .fregate.d/id_rsa
     - pip3 install --user -e .
     - fregate -h
-    - fregate -c tests/testinfra.yml up -d
+    - fregate -c tests/testinfra.yml up -d --cached
+    - fregate -c tests/testinfra.yml service kubernetes up
+    - fregate kubectl get nodes
+    - fregate kubectl get all --all-namespaces
     - fregate -c tests/testinfra.yml down
     - fregate -c tests/testinfra.yml clean
   only:
