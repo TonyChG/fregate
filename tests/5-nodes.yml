@@ -1,0 +1,56 @@
+network:
+  ip: 172.16.16.1
+  mask: 255.255.255.0
+rke:
+  ignore_docker_version: false
+  kubernetes_version: v1.12.2
+  system_images:
+    kubernetes: rancher/hyperkube:v1.12.3-rancher1
+nodes:
+  - hostname: fregate-001
+    ip: 172.16.16.100
+    netmask: 255.255.255.0
+    network: 172.16.16.1
+    box: fregate-base-v1.ova
+    role:
+      - etcd
+      - controlplane
+      - worker
+    memory: 2048
+    cpus: 1
+  - hostname: fregate-002
+    ip: 172.16.16.101
+    netmask: 255.255.255.0
+    network: 172.16.16.1
+    box: fregate-base-v1.ova
+    role:
+      - worker
+    memory: 512
+    cpus: 1
+  - hostname: fregate-003
+    ip: 172.16.16.103
+    netmask: 255.255.255.0
+    network: 172.16.16.1
+    box: fregate-base-v1.ova
+    role:
+      - worker
+    memory: 512
+    cpus: 1
+  - hostname: fregate-004
+    ip: 172.16.16.104
+    netmask: 255.255.255.0
+    network: 172.16.16.1
+    box: fregate-base-v1.ova
+    role:
+      - worker
+    memory: 512
+    cpus: 1
+  - hostname: fregate-005
+    ip: 172.16.16.105
+    netmask: 255.255.255.0
+    network: 172.16.16.1
+    box: fregate-base-v1.ova
+    role:
+      - worker
+    memory: 512
+    cpus: 1

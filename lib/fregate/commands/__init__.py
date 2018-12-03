@@ -12,13 +12,13 @@ from __future__ import absolute_import
 from fregate.provider.network import HostNetwork
 from fregate.provider.vbox import VBox
 from fregate.commons.shell import execute
-# from lib.fregate import services
+from fregate import services as services
 from argparse import ArgumentParser
 import logging
 import socket
 import time
 # import signal
-# import sys
+import sys
 import os
 import re
 
@@ -28,6 +28,8 @@ logger = logging.getLogger('fregate')
 
 
 def parse_args():
+    if 'kubectl' in sys.argv[1]:
+        return sys.argv[1:]
     parser = ArgumentParser()
     parser.add_argument("-c, --config", dest="configfile",
                         default=os.getcwd()+"/nodes.yml",
@@ -38,16 +40,20 @@ def parse_args():
     up_parser = subparsers.add_parser('up')
     up_parser.add_argument("-d, --daemon", action="store_true",
                            default=False, dest="daemonize")
+    up_parser.add_argument("--cached", action="store_true",
+                           default=False, dest="cached",
+                           help="Caching of kubernetes images")
     subparsers.add_parser('clean')
+    subparsers.add_parser('kubectl')
     ssh_parser = subparsers.add_parser('ssh')
     ssh_parser.add_argument("vm_name")
     subparsers.add_parser('status')
     subparsers.add_parser('down')
-    parser_srv = subparsers.add_parser('services')
-    parser_srv.add_argument("--add")
-    parser_srv.add_argument("--remove")
-    parser_srv.add_argument("--clean")
-    parser_srv.add_argument("--describe")
+    parser_srv = subparsers.add_parser('service')
+    parser_srv.add_argument("name",
+                            choices=["kubernetes", "helm", "dashboard"])
+    parser_srv.add_argument("state",
+                            choices=["up", "down", "clean"])
     return parser.parse_args()
 
 
@@ -96,18 +102,77 @@ def waiting_ssh(vm):
             time.sleep(1)
 
 
-def up(cfg, vmlist, network={}, daemonize=False):
+def image_caching(images):
+    cached_images = []
+    for img in images:
+        tag = images[img]
+        img_path = "images/{}.tar.gz".format(tag.replace("/", "."))
+        try:
+            os.stat(img_path)
+        except Exception:
+            code, output = execute(["docker", "pull", tag], stdout=True)
+            if code is not 0:
+                logger.warning("Failed to cached {}".format(tag))
+                sys.exit(1)
+            else:
+                code = execute([
+                    "docker", "save", tag, "-o", img_path
+                ], wait=True)
+                if code is not 0:
+                    logger.warning("Failed to save {}.tar.gz".format(img))
+                    sys.exit(1)
+                else:
+                    logger.info("Imported image {}".format(img_path))
+        else:
+            logger.info("Found cached image {}".format(img_path))
+            cached_images.append(img_path)
+    return cached_images
+
+
+def push_cached_images(vm, cached_images):
+    code = 0
+    for img_path in cached_images:
+        scpcmd = vm.get_sshcmd(forwarding=True, scp=True,
+                               target=img_path,
+                               dest="/tmp")
+        code = execute(scpcmd, wait=True, shell=True)
+        if code is not 0:
+            logger.warning("Failed to push image to {}"
+                           .format(vm.hostname))
+        else:
+            tag = os.path.basename(img_path)
+            sshcmd = vm.get_sshcmd(forwarding=True)
+            sshcmd += " docker load < /tmp/{}".format(tag)
+            code = execute(sshcmd, shell=True)
+            if code is not 0:
+                logger.warning("Failed to load {} to {}"
+                               .format(tag, vm.hostname))
+            else:
+                logger.info("{} loaded".format(tag))
+    return code
+
+
+def up(cfg, infra, daemonize=False, cached=False):
     """ Start default test infra
     """
     # signal.signal(signal.SIGINT, sigint_handler)
     hostnetwork = None
     vm_count = 0
+    network = infra.get("network")
+    nodes = infra.get("nodes")
+    cached_images = []
+    if cached and infra.get("rke"):
+        rke_cfg = infra["rke"]
+        images = rke_cfg.get("system_images")
+        if images is not None \
+                and type(images) is dict:
+            cached_images = image_caching(images)
     if network is not {}:
         hostnetwork = HostNetwork(**network)
         hostnetwork.create()
-    for vm_info in vmlist:
-        vm_info["config"] = cfg
-        vm = VBox(**vm_info)
+    for node in nodes:
+        node["config"] = cfg
+        vm = VBox(**node)
         # - Import base templates
         # - Create Host only network
         vm.import_box()
@@ -122,6 +187,7 @@ def up(cfg, vmlist, network={}, daemonize=False):
         # Wait for ssh to respond
         waiting_ssh(vm)
         vm.launch_firstboot()
+        push_cached_images(vm, cached_images)
         vm_count += 1
         _vms.append(vm)
     if not daemonize:
@@ -138,8 +204,8 @@ def up(cfg, vmlist, network={}, daemonize=False):
                 print()
         except KeyboardInterrupt:
             logger.info("Remove host network")
-            down(cfg, vmlist)
-            clean(cfg, vmlist)
+            down(cfg, nodes)
+            clean(cfg, nodes)
 
 
 def clean(network={}):
@@ -174,19 +240,14 @@ def status(cfg, vmlist):
             logger.info("   User       : {}".format(vm.ssh_user))
 
 
-def services(action, service, vm):
+def service_update(name, state, cfg={}, infra={}):
     """Services section
     """
-    index = services.index(vm)
-    if action == 'add':
-        index[service].add()
-    if action == 'remove':
-        index[service].remove()
-    if action == 'clean':
-        index[service].clean()
-    if action == 'describe':
-        index[service].describe()
-
-
-def kubectl(action):
-    pass
+    _get_vmlist(cfg, infra['nodes'])
+    code = services.run(name, state, _vms, infra=infra)
+    if code is not 0:
+        logger.warning("Failed to update state {} of service {}"
+                       .format(state, name))
+    else:
+        logger.info("{:>30} {}".format(name, state.upper()))
+    return code

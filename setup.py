@@ -17,7 +17,7 @@ fregate help you to install kubernetes with all fancy services
 
 setup(
     name='fregate',
-    version='1.0',
+    version='0.0.2',
     description='Multi nodes - Kubernetes Cluster CLI',
     license='MIT',
     scripts=[

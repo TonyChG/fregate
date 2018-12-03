@@ -7,7 +7,6 @@
 # vi       : set expandtab shiftwidth=4 softtabstop=4
 # =============================================================================
 
-
 from __future__ import absolute_import
 import os
 import re
@@ -68,12 +67,16 @@ class VBox:
             logging.debug("VM {} is removed".format(id))
         return 0
 
-    def __init__(self, id=None, box_url=None, ip=None, network=None,
-                 netmask=None, hostname=None, config={}):
-        self.box_url = box_url
+    def __init__(self, id=None, box=None, ip=None, network=None,
+                 netmask=None, hostname=None, config={}, role=[],
+                 memory=1024, cpus=1):
+        self.box_repository = config["repository"]
+        self.box_url = self.box_repository + "/" + box
         self.hostname = hostname
         self.id = id
         self.ip = ip
+        self.cpus = cpus
+        self.memory = memory
         self.network = network
         self.netmask = netmask
         self.infos = {}
@@ -84,6 +87,7 @@ class VBox:
         self.ssh_user = config["ssh"]["user"]
         self.ssh_port = config["ssh"]["port"]
         self.logger = logging.getLogger(name=self.hostname)
+        self.role = role
 
     def get_sshcmd(self, forwarding=False, scp=False, target=None, dest=None):
         """ The getter for the ssh shell command line with all required params
@@ -103,7 +107,6 @@ class VBox:
         ssh_port = "-P" if scp else "-p"
 
         if forwarding:
-            self.logger.debug("Connect to ssh with forwarding")
             ssh_ip = "127.0.0.1"
             ssh_port += " {}".format(self.forwared_port)
         else:
@@ -238,13 +241,26 @@ class VBox:
         else:
             self.logger.info("Download finished")
 
-    def rename(self, target, new_name):
-        code = execute(["vboxmanage", "modifyvm", target, "--name", new_name])
+    def update_spec(self, target, new_name):
+        code = execute([
+            "vboxmanage", "modifyvm", target,
+            "--cpus", str(self.cpus), "--memory", str(self.memory)
+        ])
+        if code is not 0:
+            self.logger.warning("Failed to update specification box {}"
+                                .format(target))
+        self.logger.info("Update specifications {}".format(new_name))
+        self.logger.info("    - RAM   : {}".format(self.memory))
+        self.logger.info("    - CPUS  : {}".format(self.cpus))
+        code = execute([
+            "vboxmanage", "modifyvm", target,
+            "--name", new_name
+        ])
         if code is not 0:
             self.logger.warning("Failed to rename box {}".format(target))
         else:
-            self.logger.info("Rename box {} => {}".format(target, new_name))
             self.name = new_name
+            self.logger.info("Rename box {} => {}".format(target, new_name))
         return code
 
     def import_box(self):
@@ -270,7 +286,7 @@ class VBox:
                         vm_name = re.sub('"', '', vm_name.group(0))
                         self.logger.debug("VM {} is imported"
                                           .format(vm_name))
-                        return self.rename(vm_name, self.hostname)
+                        return self.update_spec(vm_name, self.hostname)
         return -1
 
     def create(self):

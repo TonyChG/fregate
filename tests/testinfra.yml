@@ -1,9 +1,25 @@
 network:
   ip: 172.16.16.1
   mask: 255.255.255.0
+rke:
+  ignore_docker_version: false
+  kubernetes_version: v1.12.2
+  system_images:
+    kubernetes: rancher/hyperkube:v1.12.3-rancher1
 nodes:
-  - hostname: fregate01
-    ip: 172.16.16.101
+    box: fregate-base-v1.ova
+    role:
+      - etcd
+      - controlplane
+      - worker
+    memory: 1024
+    cpus: 1
+  - hostname: fregate02
+    ip: 172.16.16.102
     netmask: 255.255.255.0
     network: 172.16.16.1
-    box_url: http://repository.dotfile.eu/fregate-base-v1.ova
+    box: fregate-base-v1.ova
+    role:
+      - worker
+    memory: 1024
+    cpus: 1

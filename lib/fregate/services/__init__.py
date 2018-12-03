@@ -10,17 +10,46 @@
 
 
 from __future__ import absolute_import
-from .kubernetes import Kubernetes
-from .dashboard import Dashboard
-from .docker_registry import Registry
+import yaml
+import logging
+from . import kubernetes
 
-index = None
-
-# Services singletons
-def index(vm):
-    index = {'kubernetes': Kubernetes(vm),
-             'dashboard': Dashboard(),
-             'registry': Registry()}
-    return index
+logger = logging.getLogger("service")
 
 
+def gen_rke_template(dest, vms, rke={}):
+    try:
+        with open(dest, "w") as f:
+            nodes = []
+            for vm in vms:
+                nodes.append({
+                    "address": vm.ip,
+                    "user": vm.ssh_user,
+                    "role": vm.role,
+                    "ssh_key_path": vm.ssh_privkey,
+                    "port": vm.ssh_port
+                })
+            yaml.dump(dict({
+                "nodes": nodes,
+            }, **rke), f, default_flow_style=False)
+            f.close()
+    except Exception:
+        logger.warning("Failed to create {}".format(dest))
+        return -1
+    else:
+        return dest
+
+
+def run(name, state, vms, infra={}):
+    code = -1
+    if name == 'kubernetes':
+        cfg = gen_rke_template("/tmp/cluster.yml", vms,
+                               rke=infra["rke"])
+        if state == 'up':
+            code = kubernetes.up(cfg)
+    # index = {'kubernetes': Kubernetes(vmlist),
+    #          'helm': Helm(vmlist),
+    #          'dashboard': Dashboard(),
+    #          'registry': Registry()}
+    # return index
+    return code
