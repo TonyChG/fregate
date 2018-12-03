@@ -12,14 +12,5 @@ nodes:
       - etcd
       - controlplane
       - worker
-    memory: 1024
-    cpus: 1
-  - hostname: fregate02
-    ip: 172.16.16.102
-    netmask: 255.255.255.0
-    network: 172.16.16.1
-    box: fregate-base-v1.ova
-    role:
-      - worker
-    memory: 1024
-    cpus: 1
+    memory: 2048
+    cpus: 3
