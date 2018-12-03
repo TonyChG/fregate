@@ -50,6 +50,7 @@ tests_master:
     - fregate -h
     - fregate -c tests/testinfra.yml up -d --cached
     - fregate -c tests/testinfra.yml service kubernetes up
+    - cp /tmp/kube_config_cluster.yml .fregate.d/services/kubernetes/kube_config_cluster.yml
     - fregate kubectl get nodes
     - fregate kubectl get all --all-namespaces
     - fregate -c tests/testinfra.yml down
