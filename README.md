@@ -24,3 +24,5 @@ pip install -e .
 fregate -c <configfile> up
 fregate -c <configfile> ssh fregate-001
 ```
+
+[![asciicast](https://asciinema.org/a/214873.svg)](https://asciinema.org/a/214873)
